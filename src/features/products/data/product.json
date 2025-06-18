@@ -1,0 +1,28 @@
+{
+    "name": "Premium Leather Wallet",
+    "description": "Handcrafted genuine leather wallet with multiple card slots",
+    "categoryId": "67d1e16b0391f521ef4e4526",
+    "subcategoryId": "67d1e1840391f521ef4e4527",
+    "basePrice": "49.99",
+    "images": [
+        "https://res.cloudinary.com/example/image/upload/v1678901234/wallet_front.jpg",
+        "https://res.cloudinary.com/example/image/upload/v1678901235/wallet_back.jpg"
+    ],
+    "options": [
+        {
+            "name": "Color",
+            "values": [
+                "Black",
+                "Brown",
+                "Tan"
+            ]
+        },
+        {
+            "name": "Size",
+            "values": [
+                "Standard",
+                "Slim"
+            ]
+        }
+    ]
+}
