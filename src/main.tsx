@@ -16,7 +16,6 @@ import './index.css'
 import { routeTree } from './routeTree.gen'
 import { CategoryProvider } from './context/category/category-context'
 import { SubCategoryProvider } from './context/category/subcategory-context'
-import { UserProvider } from './context/user/user-context'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -101,13 +100,11 @@ if (!rootElement.innerHTML) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme='light' storageKey='vite-ui-theme'>
         <FontProvider>
-          <UserProvider>
-            <CategoryProvider>
-              <SubCategoryProvider>
-                <RouterProvider router={router} />
-              </SubCategoryProvider>
-            </CategoryProvider>
-          </UserProvider>
+          <CategoryProvider>
+            <SubCategoryProvider>
+              <RouterProvider router={router} />
+            </SubCategoryProvider>
+          </CategoryProvider>
         </FontProvider>
       </ThemeProvider>
     </QueryClientProvider>

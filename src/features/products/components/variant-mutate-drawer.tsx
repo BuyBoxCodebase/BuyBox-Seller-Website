@@ -67,16 +67,16 @@ export function CreateVariantMutateDrawer({
     const [previewUrls, setPreviewUrls] = useState<string[]>([])
     const [uploadedImages, setUploadedImages] = useState<string[]>([])
     //const [isDragging, setIsDragging] = useState(false)
-   // const fileInputRef = useRef<HTMLInputElement>(null)
+    // const fileInputRef = useRef<HTMLInputElement>(null)
     const { options: availableVariants } = useGetOptionValues((isUpdate ? currentRow?.productId : currentRow?.id) as string);
-   // console.log(currentRow)
+    // console.log(currentRow)
     const form = useForm<ProductForm>({
         resolver: zodResolver(formSchema),
         defaultValues: currentRow?.id ? {
             name: currentRow.name,
             description: currentRow.description,
             price: String(currentRow.price),
-            stockQuantity:currentRow.inventory ?  String(currentRow.inventory[0]?.quantity) : '0',
+            stockQuantity: currentRow.inventory ? String(currentRow.inventory[0]?.quantity) : '0',
             isDefault: currentRow.isDefault,
             optionValueIds: currentRow.options?.map((option) => option.optionValue.id) || [],
         } : {
@@ -277,9 +277,9 @@ export function CreateVariantMutateDrawer({
         try {
             const response = await fetch(url, {
                 method: isUpdate ? 'PATCH' : 'POST',
-                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
+                    Authorization: `Bearer ${sessionStorage.getItem('token')}`,
                 },
                 body: JSON.stringify(formData),
             })
@@ -298,7 +298,7 @@ export function CreateVariantMutateDrawer({
             onOpenChange(false)
             form.reset()
             setUploadedImages([])
-           // setSelectedFiles([])
+            // setSelectedFiles([])
             setPreviewUrls([])
 
             toast({
@@ -312,8 +312,8 @@ export function CreateVariantMutateDrawer({
             })
         }
     }
-   // const remainingImageSlots = MAX_IMAGES - uploadedImages.length - selectedFiles.length;
-   // const canAddMoreImages = remainingImageSlots > 0;
+    // const remainingImageSlots = MAX_IMAGES - uploadedImages.length - selectedFiles.length;
+    // const canAddMoreImages = remainingImageSlots > 0;
 
     return (
         <Sheet
@@ -323,7 +323,7 @@ export function CreateVariantMutateDrawer({
                 if (!v) {
                     form.reset()
                     setUploadedImages([])
-                   //    setSelectedFiles([])
+                    //    setSelectedFiles([])
                     setPreviewUrls([])
                     previewUrls.forEach(url => URL.revokeObjectURL(url))
                 }
@@ -443,33 +443,43 @@ export function CreateVariantMutateDrawer({
                                                 availableVariants.map((variant) => (
                                                     <div key={variant.id} className="space-y-2">
                                                         <label className="text-sm font-medium">{variant.name}</label>
-                                                        <Select
-                                                            onValueChange={(value) => {
-                                                                const currentValues = field.value || [];
-                                                                const filteredValues = currentValues.filter(id =>
-                                                                    !variant.values.some(v => v.id === id)
-                                                                );
-                                                                const newValues = value !== "none" ? [...filteredValues, value] : filteredValues;
-                                                                field.onChange(newValues);
-                                                            }}
-                                                            defaultValue={
-                                                                (field.value || []).find(id =>
-                                                                    variant.values.some(v => v.id === id)
-                                                                ) || ""
-                                                            }
-                                                        >
-                                                            <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder={`Select ${variant.name} (Optional)`} />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="none">None</SelectItem>
-                                                                {variant.values.map((option) => (
-                                                                    <SelectItem key={option.id} value={option.id}>
-                                                                        {option.value}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center ">
+                                                                <Checkbox
+                                                                    checked={!(field.value || []).find(id =>
+                                                                        variant.values.some(v => v.id === id)
+                                                                    )}
+                                                                    onCheckedChange={(checked) => {
+                                                                        if (checked) {
+                                                                            const currentValues = field.value || [];
+                                                                            const filteredValues = currentValues.filter(id =>
+                                                                                !variant.values.some(v => v.id === id)
+                                                                            );
+                                                                            field.onChange(filteredValues);
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                <label className='ml-2 text-sm text-gray-600'>None</label>
+                                                            </div>
+
+                                                           
+                                                            {variant.values.map((option) => (
+                                                                <div key={option.id} className="flex items-center">
+                                                                    <Checkbox
+                                                                        checked={(field.value || []).includes(option.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            const currentValues = field.value || [];
+                                                                            const filteredValues = currentValues.filter(id =>
+                                                                                !variant.values.some(v => v.id === id)
+                                                                            );
+                                                                            const newValues = checked ? [...filteredValues, option.id] : filteredValues;
+                                                                            field.onChange(newValues);
+                                                                        }}
+                                                                    />
+                                                                    <label className='ml-2 text-sm text-gray-600'>{option.value}</label>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 ))
                                             ) : (

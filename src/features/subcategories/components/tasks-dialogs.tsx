@@ -56,9 +56,9 @@ export function TasksDialogs() {
                 `${import.meta.env.VITE_BASE_URL}/category/delete/sub-category`,
                 {
                   method: 'DELETE',
-                  credentials: 'include',
                   headers: {
                     'Content-Type': 'application/json',
+                    Authorization: `Bearer ${sessionStorage.getItem('token')}`,
                   },
                   body: JSON.stringify({ subCategoryId: currentRow.id }),
                 }

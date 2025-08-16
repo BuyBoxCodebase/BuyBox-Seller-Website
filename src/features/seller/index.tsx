@@ -5,12 +5,27 @@ import { useEffect, useState, useRef } from "react";
 export default function Admin() {
   const location = useLocation();
   const navigate = useNavigate();
+  const activetoken = sessionStorage.getItem('token');
   const queryParams = new URLSearchParams(location.search);
-  const auth = queryParams.get('auth');
+  const token = activetoken ? activetoken : queryParams.get('token');
+  const baseUrl = import.meta.env.VITE_BASE_URL as string;
   const [loading, setLoading] = useState(true);
   const [showAgreement, setShowAgreement] = useState(false);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const agreementRef = useRef<HTMLDivElement>(null);
+
+  const getBrand = async () => {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/brand/get-my-brand`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await response.json();
+   // console.log(data);
+    sessionStorage.setItem('brand', JSON.stringify(data.brand));
+  }
 
   const handleScroll = () => {
     if (agreementRef.current) {
@@ -27,23 +42,43 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    if (auth === null) {
+    if (!token) {
       navigate({ to: '/sign-in' });
       return;
     }
-    if(auth === 'success'){
-      navigate({ to: '/' });
-    }
-    if(auth === 'pending'){
-      setShowAgreement(true);
-    }
-    if(auth === 'failed'){
-      navigate({ to: '/sign-in' });
-    }
-    setLoading(false);
 
-    
-  }, [auth, navigate]);
+    const fetchSellerDetails = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/seller/profile/get-details`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        const data = await response.json();
+       // console.log('Seller details:', data);
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('user', JSON.stringify(data.seller));
+        
+        if (data.seller.isCompleted === false) {
+          setShowAgreement(true);
+          setLoading(false);
+        } else {
+          sessionStorage.setItem("isLoggedIn", "true");
+          await getBrand();
+          navigate({ to: '/' });
+        }
+      } catch (error) {
+        //console.error('Error fetching seller details:', error);
+        navigate({ to: '/500' });
+      }
+    };
+
+    fetchSellerDetails();
+  }, [token, navigate]);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen"><Progress /></div>;

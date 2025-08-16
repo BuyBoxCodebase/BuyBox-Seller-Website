@@ -12,18 +12,13 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import SidebarNav from './components/sidebar-nav'
 import { useEffect } from 'react'
-import useGetAllUser from '@/hooks/user/useGetUser'
-import { useUsers } from '@/context/user/user-context'
 
 export default function Settings() {
-  const { users, loading: usersLoading } = useUsers();
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-      if (!usersLoading && !users) {
-        navigate({ to: '/landing' });
-      }
-    }, [users, usersLoading, navigate]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = sessionStorage.getItem('token')
+    token == null ? navigate({ to: '/landing' }) : null
+  }, [navigate])
   return (
     <>
       {/* ===== Top Heading ===== */}

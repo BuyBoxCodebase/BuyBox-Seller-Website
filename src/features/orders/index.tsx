@@ -10,19 +10,14 @@ import { columns } from './components/order-columns'
 import useGetAllOrders from '@/hooks/orders/useGetOrders'
 import { useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import useGetAllUser from '@/hooks/user/useGetUser'
-import { useUsers } from '@/context/user/user-context'
 
 export default function Orders() {
   const { orders, loading } = useGetAllOrders();
-  const { users, loading: usersLoading } = useUsers();
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-      if (!usersLoading && !users) {
-        navigate({ to: '/landing' });
-      }
-    }, [users, usersLoading, navigate]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = sessionStorage.getItem('token')
+    token == null ? navigate({ to: '/landing' }) : null
+  }, [navigate])
   
   return (
     <TasksProvider>

@@ -6,8 +6,8 @@ export default function useGetBrand() {
         const getBrand = async () => {
             const response = await fetch(`${import.meta.env.VITE_BASE_URL}/brand/get-my-brand`, {
                 method: 'GET',
-                credentials: 'include',
                 headers: {
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
                 }
             });

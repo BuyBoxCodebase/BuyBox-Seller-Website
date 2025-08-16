@@ -38,7 +38,7 @@ import { SubCategory } from '@/features/subcategories/data/schema'
 import { Product } from '../data/schema'
 import { useCategories } from '@/context/category/category-context'
 import { useSubCategories } from '@/context/category/subcategory-context'
-
+import { Checkbox } from "@/components/ui/checkbox"
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -73,9 +73,6 @@ export function ProductsMutateDrawer({
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [uploadedImages, setUploadedImages] = useState<string[]>([])
-  // const [additionalInfo, setAdditionalInfo] = useState<{ key: string; value: string }[]>([
-  //   { key: '', value: '' }
-  // ])
   const [variants, setVariants] = useState<Variant[]>([])
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false)
   const [currentVariant, setCurrentVariant] = useState<Variant | undefined>(undefined)
@@ -109,17 +106,14 @@ export function ProductsMutateDrawer({
   useEffect(() => {
     if (isUpdate && currentRow) {
       setUploadedImages(currentRow.images || [])
-      // setAdditionalInfo(currentRow.additionalInfo || [{ key: '', value: '' }])
       setVariants([])
     } else {
       setUploadedImages([])
-      //setAdditionalInfo([{ key: '', value: '' }])
       setVariants([])
     }
   }, [isUpdate, currentRow, open])
 
   useEffect(() => {
-    // Filter subcategories based on selected category
     const categoryId = form.watch('categoryId')
     if (categoryId && subCategories) {
       const filtered = subCategories.filter(sub => sub.categoryId === categoryId)
@@ -255,10 +249,9 @@ export function ProductsMutateDrawer({
 
       const response = await fetch(`${baseUrl}/product/upload/images`, {
         method: 'POST',
-        credentials: 'include',
         body: form,
         headers: {
-         
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       })
 
@@ -283,7 +276,6 @@ export function ProductsMutateDrawer({
         title: 'Images uploaded successfully',
       })
     } catch (error) {
-      ////console.error('Error uploading images:', error)
       toast({
         title: 'Failed to upload images',
         description: 'Please try again.',
@@ -291,28 +283,11 @@ export function ProductsMutateDrawer({
     }
   }
 
-  // const handleAdditionalInfoChange = (index: number, field: 'key' | 'value', value: string) => {
-  //   const newAdditionalInfo = [...additionalInfo]
-  //   newAdditionalInfo[index][field] = value
-  //   setAdditionalInfo(newAdditionalInfo)
-  // }
-
-  // const addKeyValuePair = () => {
-  //   setAdditionalInfo([...additionalInfo, { key: '', value: '' }])
-  // }
-
-  // const removeKeyValuePair = (index: number) => {
-  //   const newAdditionalInfo = additionalInfo.filter((_, i) => i !== index)
-  //   setAdditionalInfo(newAdditionalInfo)
-  // }
-
   const handleSaveVariant = (variant: Variant) => {
     if (currentVariant) {
-      // Update existing variant
       setVariants(variants.map(v => v.id === variant.id ? variant : v))
       setCurrentVariant(undefined)
     } else {
-      // Add new variant with generated ID if not provided
       const newVariant = {
         ...variant,
         id: variant.id || `variant-${Date.now()}`
@@ -331,7 +306,6 @@ export function ProductsMutateDrawer({
     setVariants(variants.filter(v => v.id !== variantId))
   }
 
-  // Find the onSubmit function in your ProductsMutateDrawer component and update it like this:
   const onSubmit = async (data: ProductForm) => {
     if (uploadedImages.length === 0) {
       toast({
@@ -341,11 +315,6 @@ export function ProductsMutateDrawer({
       return
     }
 
-    // const filteredAdditionalInfo = additionalInfo.filter(
-    //   (item) => item.key.trim() !== '' && item.value.trim() !== ''
-    // )
-
-    // Transform variants to the required format
     const formattedOptions = variants.map(variant => ({
       name: variant.name,
       values: variant.values.map(v => v.value)
@@ -355,8 +324,7 @@ export function ProductsMutateDrawer({
       ...data,
       basePrice: data.price,
       images: uploadedImages,
-      // additionalInfo: filteredAdditionalInfo,
-      options: formattedOptions, // Use the transformed format
+      options: formattedOptions,
     }
 
     const url = `${baseUrl}/product/${isUpdate ? `update/${currentRow && currentRow.id}` : 'create'}`
@@ -364,9 +332,9 @@ export function ProductsMutateDrawer({
     try {
       const response = await fetch(url, {
         method: isUpdate ? 'PATCH' : 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
         body: JSON.stringify(formData),
       })
@@ -379,22 +347,17 @@ export function ProductsMutateDrawer({
         return
       }
 
-      // const responseData = await response.json()
-      // console.log(responseData)
-
       onOpenChange(false)
       form.reset()
       setUploadedImages([])
       setSelectedFiles([])
       setPreviewUrls([])
-      //setAdditionalInfo([{ key: '', value: '' }])
       setVariants([])
 
       toast({
         title: `Product ${isUpdate ? 'updated' : 'created'} successfully`,
       })
     } catch (error) {
-      //console.error(`Error ${isUpdate ? 'updating' : 'creating'} product:`, error)
       toast({
         title: `Failed to ${isUpdate ? 'update' : 'create'} product`,
         description: 'Please try again.',
@@ -474,26 +437,43 @@ export function ProductsMutateDrawer({
             <FormField
               control={form.control}
               name="categoryId"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
+              render={() => (
+                <FormItem className="space-y-3">
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      defaultValue={currentRow?.categoryId ?? ''}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories && categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      {categories && categories.map((category) => (
+                        <FormField
+                          key={category.id}
+                          control={form.control}
+                          name="categoryId"
+                          render={({ field }) => {
+                            return (
+                              <FormItem
+                                key={category.id}
+                                className="flex flex-row items-center space-x-3 space-y-0"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={Array.isArray(field.value) ? field.value.includes(category.id) : field.value === category.id}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        field.onChange(category.id);
+                                      } else {
+                                        field.onChange('');
+                                      }
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal">
+                                  {category.name}
+                                </FormLabel>
+                              </FormItem>
+                            )
+                          }}
+                        />
+                      ))}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -503,27 +483,47 @@ export function ProductsMutateDrawer({
             <FormField
               control={form.control}
               name="subCategoryId"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
+              render={() => (
+                <FormItem className="space-y-3">
                   <FormLabel>Sub Category</FormLabel>
                   <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      defaultValue={currentRow?.subCategoryId ?? ''}
-                      disabled={!form.watch('categoryId')}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a sub category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredSubCategories.map((subCategory) => (
-                          <SelectItem key={subCategory.id} value={subCategory.id}>
-                            {subCategory.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      {filteredSubCategories.map((subCategory) => (
+                        <FormField
+                          key={subCategory.id}
+                          control={form.control}
+                          name="subCategoryId"
+                          render={({ field }) => {
+                            const selectedCategoryId = form.watch('categoryId');
+                            const isDisabled = !selectedCategoryId;
+
+                            return (
+                              <FormItem
+                                key={subCategory.id}
+                                className="flex flex-row items-center space-x-3 space-y-0"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    disabled={isDisabled}
+                                    checked={Array.isArray(field.value) ? field.value.includes(subCategory.id) : field.value === subCategory.id}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        field.onChange(subCategory.id);
+                                      } else {
+                                        field.onChange('');
+                                      }
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className={`text-sm font-normal ${isDisabled ? 'text-muted-foreground' : ''}`}>
+                                  {subCategory.name}
+                                </FormLabel>
+                              </FormItem>
+                            )
+                          }}
+                        />
+                      ))}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -567,52 +567,6 @@ export function ProductsMutateDrawer({
                 </FormItem>
               )}
             />
-
-            {/* <div className="space-y-2">
-              <FormLabel>Attributes</FormLabel>
-
-              {additionalInfo.map((info, index) => (
-                <div key={index} className="flex md:flex-row flex-col items-center gap-2 mb-2">
-                  <Input
-                    placeholder="Key (e.g., Material)"
-                    value={info.key}
-                    onChange={(e) =>
-                      handleAdditionalInfoChange(index, 'key', e.target.value)
-                    }
-                    className="flex-1"
-                  />
-                  <Input
-                    placeholder="Value (e.g., Cotton)"
-                    value={info.value}
-                    onChange={(e) =>
-                      handleAdditionalInfoChange(index, 'value', e.target.value)
-                    }
-                    className="flex-1"
-                  />
-                  {additionalInfo.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeKeyValuePair(index)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <HiOutlineTrash className="w-5 h-5" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={addKeyValuePair}
-                className="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800"
-              >
-                <HiOutlinePlusCircle className="w-5 h-5" />
-                <span>Add Attributes</span>
-              </Button>
-            </div> */}
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
@@ -688,7 +642,7 @@ export function ProductsMutateDrawer({
                           size="icon"
                           className="absolute top-1 right-1 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering file input click
+                            e.stopPropagation();
                             removeSelectedImage(index);
                           }}
                         >

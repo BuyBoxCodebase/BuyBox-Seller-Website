@@ -2,25 +2,24 @@ import { Card } from '@/components/ui/card'
 import AuthLayout from '../auth-layout'
 import { UserAuthForm } from './components/user-auth-form'
 import { useEffect } from 'react'
-import { useUsers } from '@/context/user/user-context'
 // import { Link } from '@tanstack/react-router'
 
 export default function SignIn() {
-  const {users}=useUsers()
   useEffect(() => {
     const isAuthenticated = sessionStorage.getItem('isAuthenticated')
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn')
     const isOtp = sessionStorage.getItem('isOtp')
     if (isOtp === 'true') {
       window.location.href = '/otp'
     }
-    if (users!=null) {
+    if (isLoggedIn === 'true') {
       window.location.href = '/'
     }
     if (isAuthenticated === 'true') {
       window.location.href = '/create-brand'
     }
   }
-  , [users])
+  , [])
   return (
     <AuthLayout>
       <Card className='p-8 shadow-lg max-w-md w-full'>

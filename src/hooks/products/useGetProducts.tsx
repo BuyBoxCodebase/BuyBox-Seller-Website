@@ -10,6 +10,7 @@ export default function useGetProducts() {
     const getProducts = async () => {
         //const token = localStorage.getItem("token");
         //const user = JSON.parse(sessionStorage.getItem("user") || '{}');
+        const token = sessionStorage.getItem("token");
         setLoading(true);
         try {
           const response = await fetch(
@@ -17,9 +18,9 @@ export default function useGetProducts() {
             // `${baseUrl}/product/store?storeName=${storename}`,
             {
               method: "GET",
-              credentials: "include",
               headers: {
                 "Content-Type": "application/json; charset=UTF-8",
+                Authorization: `Bearer ${token}`,
               },
             }
           );

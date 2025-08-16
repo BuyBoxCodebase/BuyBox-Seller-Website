@@ -15,7 +15,6 @@ export default function useGetAllSubCategories() {
           `${import.meta.env.VITE_BASE_URL}/category/get/sub-categories`,
           {
             method: 'GET',
-            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
             },

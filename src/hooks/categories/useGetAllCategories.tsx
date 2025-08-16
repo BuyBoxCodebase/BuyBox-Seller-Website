@@ -22,7 +22,6 @@ export default function useGetAllCategories() {
           `${import.meta.env.VITE_BASE_URL}/category/get`,
           {
             method: 'GET',
-            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
             },

@@ -43,9 +43,8 @@ export const FileUpload = ({
             
             const response = await fetch(`${baseUrl}/category/upload/image`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
-                    
+                    Authorization: `Bearer ${sessionStorage.getItem("token")}`,
                 },
                 body: form,
             });

@@ -1,18 +1,13 @@
 
-import { useUsers } from "@/context/user/user-context";
-import useGetAllUser from "@/hooks/user/useGetUser";
 import { Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect } from "react";
 
 const Landing: React.FC = () => {
     const navigate = useNavigate();
-    const { users, loading } = useUsers();
-    
     useEffect(() => {
-        if (!loading && users) {
-            navigate({ to: '/' });
-        }
-    }, [users, loading, navigate]);
+      const token = sessionStorage.getItem('token')
+      token == null ? null : navigate({ to: '/' })
+    }, [navigate])
 
 
     return (

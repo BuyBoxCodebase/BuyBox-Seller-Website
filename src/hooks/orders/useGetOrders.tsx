@@ -14,9 +14,9 @@ export default function useGetAllOrders() {
                     `${import.meta.env.VITE_BASE_URL}/order/seller/get-orders`,
                     {
                         method: 'GET',
-                        credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                         },
                     }
                 )

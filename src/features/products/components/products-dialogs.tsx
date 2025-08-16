@@ -103,9 +103,9 @@ export function ProductsDialogs() {
                 `${import.meta.env.VITE_BASE_URL}/product/delete/${currentRow.id}`,
                 {
                   method: 'DELETE',
-                  credentials: 'include',
                   headers: {
                     'Content-Type': 'application/json',
+                    Authorization: `Bearer ${sessionStorage.getItem('token')}`,
                   },
                 }
               )
