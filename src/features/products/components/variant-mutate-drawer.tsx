@@ -27,7 +27,6 @@ import {
 //import { HiOutlineTrash } from 'react-icons/hi'
 
 import { Checkbox } from '@/components/ui/checkbox'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { Textarea } from '@/components/ui/textarea'
 import { Variant } from '@/hooks/variants/schema'
