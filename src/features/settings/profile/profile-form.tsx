@@ -69,10 +69,11 @@ export default function ProfileForm() {
         ...data,
         profilePic
       };
+      const token = sessionStorage.getItem("token");
       const response = await fetch(`${import.meta.env.VITE_BASEURL}/auth/seller/update-profile`, {
         method: "PATCH",
-        credentials: "include",
         headers: {
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(submitData),

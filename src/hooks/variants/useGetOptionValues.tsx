@@ -17,9 +17,9 @@ export default function useGetOptionValues(id: string) {
           `${import.meta.env.VITE_BASE_URL}/product/option/${id}`,
           {
             method: 'GET',
-            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
             },
           }
         )

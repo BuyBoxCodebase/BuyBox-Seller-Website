@@ -96,9 +96,9 @@ export function TasksMutateDrawer({
     const url = `${baseUrl}/category/${isUpdate ? "update" : "create"}/sub-category`
     const response = await fetch(url, {
       method: isUpdate ? 'PATCH' : 'POST',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
       },
       body: JSON.stringify(formData),
     })

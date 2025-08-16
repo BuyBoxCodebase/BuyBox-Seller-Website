@@ -12,18 +12,13 @@ import useGetProducts from '@/hooks/products/useGetProducts'
 import { ProductsDialogs } from './components/products-dialogs'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import useGetAllUser from '@/hooks/user/useGetUser'
-import { useUsers } from '@/context/user/user-context'
 export default function Products() {
   const { products, loading } = useGetProducts()
-  const { users, loading: usersLoading } = useUsers();
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-      if (!usersLoading && !users) {
-        navigate({ to: '/landing' });
-      }
-    }, [users, usersLoading, navigate]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = sessionStorage.getItem('token')
+    token == null ? navigate({ to: '/landing' }) : null
+  }, [navigate])
   return (
     <TasksProvider>
       <Header fixed>

@@ -21,30 +21,21 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { toast } from '@/hooks/use-toast'
-import { User } from '@/hooks/user/schema'
 
 export function NavUser({
   user,
 }: {
-  user:User | null | undefined
+  user: {
+    name: string
+    email: string
+    profilePic: string
+  }
 }) {
   const { isMobile } = useSidebar()
   const navigate = useNavigate();
-  const logout = async () => {
-    try{
-      await fetch(`${import.meta.env.VITE_BASE_URL}/seller/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-      navigate({to:'/sign-in'})
-    }catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Logout failed. Please try again.',
-        variant: 'destructive',
-      })
-    }
+  function logout() {
+    sessionStorage.clear()
+    navigate({ to: '/sign-in' })
   }
  // console.log('User:', user);
   return (
@@ -77,7 +68,7 @@ export function NavUser({
               <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
                 <Avatar className='h-8 w-8 rounded-lg'>
                   <AvatarImage src={user?.profilePic} alt={user?.name} />
-                  <AvatarFallback className='rounded-lg'>{user?.name && user?.name[0].toUpperCase()}</AvatarFallback>
+                  <AvatarFallback className='rounded-lg'>{user.name && user?.name[0].toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className='grid flex-1 text-left text-sm leading-tight'>
                   <span className='truncate font-semibold'>{user?.name}</span>

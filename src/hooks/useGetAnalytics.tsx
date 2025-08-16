@@ -14,9 +14,9 @@ export default function useGetAnalytics() {
                     `${import.meta.env.VITE_BASE_URL}/analytics/seller`,
                     {
                         method: 'GET',
-                        credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                         },
                     }
                 )

@@ -17,9 +17,9 @@ export default function useGetProductVariants(id: string) {
           `${import.meta.env.VITE_BASE_URL}/product/variants/${id}`,
           {
             method: 'GET',
-            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
             },
           }
         )

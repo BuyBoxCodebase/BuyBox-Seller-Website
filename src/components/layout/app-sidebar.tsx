@@ -9,10 +9,10 @@ import { NavGroup } from '@/components/layout/nav-group'
 import { NavUser } from '@/components/layout/nav-user'
 import { TeamSwitcher } from '@/components/layout/team-switcher'
 import { sidebarData } from './data/sidebar-data'
-import { useUsers } from '@/context/user/user-context'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const {users:userData}=useUsers()
+  const userString = sessionStorage.getItem('user');
+  const userData = userString!=null ? JSON.parse(userString ) : {};
   return (
     <Sidebar collapsible='icon' variant='floating' {...props}>
       <SidebarHeader>

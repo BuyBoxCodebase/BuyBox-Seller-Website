@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,27 +11,10 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { toast } from '@/hooks/use-toast';
-import { useUsers } from '@/context/user/user-context';
 
 export function ProfileDropdown() {
-  const {users:userData} = useUsers()
-  const navigate = useNavigate()
-  const logout = async () => {
-    try{
-      await fetch(`${import.meta.env.VITE_BASE_URL}/seller/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-      navigate({to:'/sign-in'})
-    }catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Logout failed. Please try again.',
-        variant: 'destructive',
-      })
-    }
-  }
+  const userString = sessionStorage.getItem('user');
+  const userData = userString ? JSON.parse(userString) : null;
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
@@ -68,7 +51,7 @@ export function ProfileDropdown() {
           <DropdownMenuItem>New Team</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout}>
+        <DropdownMenuItem>
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

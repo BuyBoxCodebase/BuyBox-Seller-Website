@@ -39,13 +39,14 @@ export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
   async function onSubmit(formdata: z.infer<typeof formSchema>) {
     setIsLoading(true)
     // eslint-disable-next-line no-console
+    const token = sessionStorage.getItem('token')
     const response = await fetch(
         `${baseUrl}/brand/create`,
         {
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify(formdata),
         },
