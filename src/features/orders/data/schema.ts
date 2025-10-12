@@ -41,7 +41,7 @@ export const orderSchema = z.object({
     id: z.string().nonempty(),
     name: z.string().nonempty(),
     email: z.string().email(),
-    profilePic: z.string().url().optional(),
+    profilePic: z.string().url().nullable().optional(),
     phoneNumber: z.number().nullable().or(z.string().nullable()),
   })
 })
