@@ -37,6 +37,9 @@ const authForgotPasswordLazyImport = createFileRoute(
 const AuthenticatedSettingsRouteLazyImport = createFileRoute(
   '/_authenticated/settings',
 )()
+const AuthenticatedVideosIndexLazyImport = createFileRoute(
+  '/_authenticated/videos/',
+)()
 const AuthenticatedUsersIndexLazyImport = createFileRoute(
   '/_authenticated/users/',
 )()
@@ -194,6 +197,15 @@ const auth500Route = auth500Import.update({
   path: '/500',
   getParentRoute: () => rootRoute,
 } as any)
+
+const AuthenticatedVideosIndexLazyRoute =
+  AuthenticatedVideosIndexLazyImport.update({
+    id: '/videos/',
+    path: '/videos/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/videos/index.lazy').then((d) => d.Route),
+  )
 
 const AuthenticatedUsersIndexLazyRoute =
   AuthenticatedUsersIndexLazyImport.update({
@@ -503,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/videos/': {
+      id: '/_authenticated/videos/'
+      path: '/videos'
+      fullPath: '/videos'
+      preLoaderRoute: typeof AuthenticatedVideosIndexLazyImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
   }
 }
 
@@ -542,6 +561,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOrdersIndexLazyRoute: typeof AuthenticatedOrdersIndexLazyRoute
   AuthenticatedProductsIndexLazyRoute: typeof AuthenticatedProductsIndexLazyRoute
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute
+  AuthenticatedVideosIndexLazyRoute: typeof AuthenticatedVideosIndexLazyRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -554,6 +574,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOrdersIndexLazyRoute: AuthenticatedOrdersIndexLazyRoute,
   AuthenticatedProductsIndexLazyRoute: AuthenticatedProductsIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
+  AuthenticatedVideosIndexLazyRoute: AuthenticatedVideosIndexLazyRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -587,6 +608,7 @@ export interface FileRoutesByFullPath {
   '/products': typeof AuthenticatedProductsIndexLazyRoute
   '/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/videos': typeof AuthenticatedVideosIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -615,6 +637,7 @@ export interface FileRoutesByTo {
   '/products': typeof AuthenticatedProductsIndexLazyRoute
   '/settings': typeof AuthenticatedSettingsIndexLazyRoute
   '/users': typeof AuthenticatedUsersIndexLazyRoute
+  '/videos': typeof AuthenticatedVideosIndexLazyRoute
 }
 
 export interface FileRoutesById {
@@ -647,6 +670,7 @@ export interface FileRoutesById {
   '/_authenticated/products/': typeof AuthenticatedProductsIndexLazyRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexLazyRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexLazyRoute
+  '/_authenticated/videos/': typeof AuthenticatedVideosIndexLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -679,6 +703,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/settings/'
     | '/users'
+    | '/videos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/500'
@@ -706,6 +731,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/settings'
     | '/users'
+    | '/videos'
   id:
     | '__root__'
     | '/_authenticated'
@@ -736,6 +762,7 @@ export interface FileRouteTypes {
     | '/_authenticated/products/'
     | '/_authenticated/settings/'
     | '/_authenticated/users/'
+    | '/_authenticated/videos/'
   fileRoutesById: FileRoutesById
 }
 
@@ -812,7 +839,8 @@ export const routeTree = rootRoute
         "/_authenticated/help-center/",
         "/_authenticated/orders/",
         "/_authenticated/products/",
-        "/_authenticated/users/"
+        "/_authenticated/users/",
+        "/_authenticated/videos/"
       ]
     },
     "/(auth)/500": {
@@ -914,6 +942,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/users/": {
       "filePath": "_authenticated/users/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/videos/": {
+      "filePath": "_authenticated/videos/index.lazy.tsx",
       "parent": "/_authenticated"
     }
   }

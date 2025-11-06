@@ -7,7 +7,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const activetoken = sessionStorage.getItem('token');
   const queryParams = new URLSearchParams(location.search);
-  const token = activetoken ? activetoken : queryParams.get('token');
+  const token = activetoken ? activetoken : queryParams.get('accessToken');
   const baseUrl = import.meta.env.VITE_BASE_URL as string;
   const [loading, setLoading] = useState(true);
   const [showAgreement, setShowAgreement] = useState(false);

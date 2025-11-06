@@ -7,6 +7,7 @@ import {
   IconSettings,
   IconTool,
   IconUserCog,
+  IconVideo,
 } from '@tabler/icons-react'
 import { Command } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -40,10 +41,15 @@ export const sidebarData: SidebarData = {
           icon: IconPackages,
         },
         {
+          title: 'Videos',
+          url: '/videos',
+          icon: IconVideo,
+        },
+        {
           title: 'Orders',
           url: '/orders',
           icon: IconChecklist,
-        },
+        },  
         // {
         //   title: 'SubCategories',
         //   url: '/subcategories',
