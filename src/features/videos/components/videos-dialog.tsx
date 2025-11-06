@@ -1,6 +1,6 @@
 import { toast } from '@/hooks/use-toast'
 import { ConfirmDialog } from '@/components/confirm-dialog'
-import { Videos } from '../data/schema'
+//import { Videos } from '../data/schema'
 import { useVideos } from '../context/videos-context'
 import { VideosMutateDrawer } from './video-mutate-drawer'
 
