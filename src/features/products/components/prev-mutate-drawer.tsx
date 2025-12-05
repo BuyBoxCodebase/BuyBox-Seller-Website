@@ -33,7 +33,6 @@ import { Product } from '../data/schema'
 import { useCategories } from '@/context/category/category-context'
 import { useSubCategories } from '@/context/category/subcategory-context'
 import { Checkbox } from "@/components/ui/checkbox"
-
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -43,6 +42,8 @@ interface Props {
   isVariant?: boolean
 }
 
+
+
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   description: z.string().min(1, 'Description is required.'),
@@ -50,12 +51,11 @@ const formSchema = z.object({
   inventory: z.number().min(0, 'Inventory must be a positive number.'),
   categoryId: z.string().min(1, 'Category is required.'),
   subCategoryId: z.string().min(1, 'Sub-category is required.'),
-  size: z.string().min(1, 'Size is required.'),
-  videoUrl: z.string().min(1, 'Video is required.'),
   productId: z.string().optional(),
 })
 
 type ProductForm = z.infer<typeof formSchema>
+const MAX_IMAGES = 5;
 
 export function ProductsMutateDrawer({
   open,
@@ -64,14 +64,14 @@ export function ProductsMutateDrawer({
   baseUrl = import.meta.env.VITE_BASE_URL as string,
 }: Props) {
   const isUpdate = !!currentRow
-  const [selectedVideo, setSelectedVideo] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string>('')
-  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string>('')
-  const [isUploading, setIsUploading] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [uploadedImages, setUploadedImages] = useState<string[]>([])
   const [variants, setVariants] = useState<Variant[]>([])
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false)
   const [currentVariant, setCurrentVariant] = useState<Variant | undefined>(undefined)
-  const videoInputRef = useRef<HTMLInputElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { categories } = useCategories()
   const { subCategories } = useSubCategories()
   const [filteredSubCategories, setFilteredSubCategories] = useState<SubCategory[]>([])
@@ -85,8 +85,6 @@ export function ProductsMutateDrawer({
       inventory: currentRow.inventory ? currentRow.inventory[0].quantity : 0,
       categoryId: currentRow.categoryId ?? '',
       subCategoryId: currentRow.subCategoryId ?? '',
-      size: '',
-      videoUrl: '',
       productId: currentRow.id,
     } : {
       name: '',
@@ -95,18 +93,16 @@ export function ProductsMutateDrawer({
       inventory: 0,
       categoryId: '',
       subCategoryId: '',
-      size: '',
-      videoUrl: '',
       productId: '',
     },
   })
 
   useEffect(() => {
     if (isUpdate && currentRow) {
-      setUploadedVideoUrl('')
+      setUploadedImages(currentRow.images || [])
       setVariants([])
     } else {
-      setUploadedVideoUrl('')
+      setUploadedImages([])
       setVariants([])
     }
   }, [isUpdate, currentRow, open])
@@ -121,69 +117,133 @@ export function ProductsMutateDrawer({
     }
   }, [form.watch('categoryId'), subCategories])
 
-  const handleVideoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0]
-      
-      if (!file.type.startsWith('video/')) {
-        toast({
-          title: 'Invalid file type',
-          description: 'Please select a video file.',
-          variant: 'destructive',
-        })
-        return
-      }
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const filesArray = Array.from(event.target.files)
+      addFiles(filesArray)
+    }
+  }
 
-      setSelectedVideo(file)
-      const url = URL.createObjectURL(file)
-      setPreviewUrl(url)
+  const addFiles = (files: File[]) => {
+    const imageFiles = files.filter(file => file.type.startsWith('image/'))
+
+    if (imageFiles.length !== files.length) {
+      toast({
+        title: 'Some files were skipped',
+        description: 'Only image files are accepted.',
+      })
+    }
+
+    if (imageFiles.length === 0) return
+    const totalCount = selectedFiles.length + uploadedImages.length + imageFiles.length
+
+    if (totalCount > MAX_IMAGES) {
+      toast({
+        title: 'Maximum images limit reached',
+        description: `You can only upload a maximum of ${MAX_IMAGES} images. ${MAX_IMAGES - uploadedImages.length} slots remaining.`,
+      })
+      const remainingSlots = MAX_IMAGES - uploadedImages.length - selectedFiles.length
+      if (remainingSlots <= 0) return
+
+      const limitedFiles = imageFiles.slice(0, remainingSlots)
+      setSelectedFiles((prev) => [...prev, ...limitedFiles])
+      const newPreviews = limitedFiles.map((file) => URL.createObjectURL(file))
+      setPreviewUrls((prev) => [...prev, ...newPreviews])
+    } else {
+      setSelectedFiles((prev) => [...prev, ...imageFiles])
+      const newPreviews = imageFiles.map((file) => URL.createObjectURL(file))
+      setPreviewUrls((prev) => [...prev, ...newPreviews])
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    if (e.dataTransfer.files.length > 0) {
+      const filesArray = Array.from(e.dataTransfer.files)
+      addFiles(filesArray)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragging(false)
     }
   }
 
   const handleBrowseClick = () => {
-    if (videoInputRef.current) {
-      videoInputRef.current.click()
-    }
-  }
-
-  const removeVideo = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl)
-    }
-    setSelectedVideo(null)
-    setPreviewUrl('')
-    if (videoInputRef.current) {
-      videoInputRef.current.value = ''
-    }
-  }
-
-  const removeUploadedVideo = () => {
-    setUploadedVideoUrl('')
-    form.setValue('videoUrl', '')
-  }
-
-  const handleUploadVideo = async () => {
-    if (!selectedVideo) {
+    if (uploadedImages.length >= MAX_IMAGES) {
       toast({
-        title: 'No video selected',
-        description: 'Please select a video to upload.',
-        variant: 'destructive',
+        title: 'Maximum images limit reached',
+        description: `You can only upload a maximum of ${MAX_IMAGES} images.`,
       })
       return
     }
 
-    const formData = new FormData()
-    formData.append('files', selectedVideo)
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const removeSelectedImage = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+    setPreviewUrls((prev) => {
+      const newPreviews = [...prev]
+      URL.revokeObjectURL(newPreviews[index])
+      newPreviews.splice(index, 1)
+      return newPreviews
+    })
+  }
+
+  const removeUploadedImage = (index: number) => {
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const handleUploadImages = async () => {
+    if (selectedFiles.length === 0) {
+      toast({
+        title: 'No images selected for upload',
+        description: 'Please select at least one image.',
+      })
+      return
+    }
+    if (uploadedImages.length + selectedFiles.length > MAX_IMAGES) {
+      const remainingSlots = MAX_IMAGES - uploadedImages.length
+      toast({
+        title: 'Too many images',
+        description: `You can only upload ${remainingSlots} more image${remainingSlots !== 1 ? 's' : ''}.`,
+      })
+      return
+    }
+
+    const form = new FormData()
+    selectedFiles.forEach((file) => {
+      form.append('files', file)
+    })
 
     try {
-      setIsUploading(true)
       toast({
-        title: 'Uploading video...',
+        title: 'Uploading images...',
       })
 
-      const response = await fetch(`${baseUrl}/reels/upload/images`, {
+      const response = await fetch(`${baseUrl}/product/upload/images`, {
         method: 'POST',
-        body: formData,
+        body: form,
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
@@ -191,32 +251,29 @@ export function ProductsMutateDrawer({
 
       if (!response.ok) {
         toast({
-          title: 'Failed to upload video',
+          title: 'Failed to upload images',
           description: 'Please try again.',
-          variant: 'destructive',
         })
         return
       }
 
       const data = await response.json()
-      const videoUrl = data[0].url
-      
-      setUploadedVideoUrl(videoUrl)
-      form.setValue('videoUrl', videoUrl)
-      
-      setSelectedVideo(null)
+      setUploadedImages((prev) => [
+        ...prev,
+        ...data.map((d: { url: string }) => d.url)
+      ])
+
+      setSelectedFiles([])
+      setPreviewUrls([])
 
       toast({
-        title: 'Video uploaded successfully',
+        title: 'Images uploaded successfully',
       })
     } catch (error) {
       toast({
-        title: 'Failed to upload video',
+        title: 'Failed to upload images',
         description: 'Please try again.',
-        variant: 'destructive',
       })
-    } finally {
-      setIsUploading(false)
     }
   }
 
@@ -244,120 +301,65 @@ export function ProductsMutateDrawer({
   }
 
   const onSubmit = async (data: ProductForm) => {
-    let createdProductId: string | null = null
-    
+    if (uploadedImages.length === 0) {
+      toast({
+        title: 'Images required',
+        description: 'Please upload at least one image for the product.',
+      })
+      return
+    }
+
+    const formattedOptions = variants.map(variant => ({
+      name: variant.name,
+      values: variant.values.map(v => v.value)
+    }))
+
+    const formData = {
+      ...data,
+      basePrice: data.price,
+      images: uploadedImages,
+      options: formattedOptions,
+    }
+
+    const url = `${baseUrl}/product/${isUpdate ? `update/${currentRow && currentRow.id}` : 'create'}`
+
     try {
-      // Step 1: Create the product without caption, size, productId, and videoUrl
-      const formattedOptions = variants.map(variant => ({
-        name: variant.name,
-        values: variant.values.map(v => v.value)
-      }))
-
-      const productData = {
-        name: data.name,
-        description: data.description,
-        basePrice: data.price,
-        inventory: data.inventory,
-        categoryId: data.categoryId,
-        subCategoryId: data.subCategoryId,
-        images: [],
-        options: formattedOptions,
-      }
-
-      const productUrl = `${baseUrl}/product/${isUpdate ? `update/${currentRow && currentRow.id}` : 'create'}`
-
-      const productResponse = await fetch(productUrl, {
+      const response = await fetch(url, {
         method: isUpdate ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
-        body: JSON.stringify(productData),
+        body: JSON.stringify(formData),
       })
 
-      if (!productResponse.ok) {
+      if (!response.ok) {
         toast({
           title: `Failed to ${isUpdate ? 'update' : 'create'} product`,
           description: 'Please try again.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      const createdProduct = await productResponse.json()
-      const productId = isUpdate ? currentRow?.id : createdProduct.productId
-      createdProductId = isUpdate ? null : createdProduct.productId
-      
-      console.log(createdProduct)
-      const reelData = {
-        productId: productId,
-        size: data.size,
-        caption: data.name, 
-        videoUrl: data.videoUrl,
-      }
-
-      const reelResponse = await fetch(`${baseUrl}/reels/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(reelData),
-      })
-
-      if (!reelResponse.ok) {
-        if (createdProductId) {
-          await fetch(`${baseUrl}/product/delete/${createdProductId}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
-            },
-          })
-        }
-        
-        toast({
-          title: 'Failed to create video reel',
-          description: isUpdate 
-            ? 'Video reel creation failed. Please try again.' 
-            : 'Product creation rolled back due to video reel failure. Please try again.',
-          variant: 'destructive',
         })
         return
       }
 
       onOpenChange(false)
       form.reset()
-      setUploadedVideoUrl('')
-      removeVideo()
+      setUploadedImages([])
+      setSelectedFiles([])
+      setPreviewUrls([])
       setVariants([])
 
       toast({
-        title: `Product and video ${isUpdate ? 'updated' : 'created'} successfully`,
+        title: `Product ${isUpdate ? 'updated' : 'created'} successfully`,
       })
     } catch (error) {
-      // Rollback: Delete the created product if any error occurs
-      if (createdProductId) {
-        try {
-          await fetch(`${baseUrl}/product/delete/${createdProductId}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
-            },
-          })
-        } catch (deleteError) {
-          console.error('Failed to rollback product creation:', deleteError)
-        }
-      }
-      
       toast({
         title: `Failed to ${isUpdate ? 'update' : 'create'} product`,
         description: 'Please try again.',
-        variant: 'destructive',
       })
     }
   }
+  const remainingImageSlots = MAX_IMAGES - uploadedImages.length - selectedFiles.length;
+  const canAddMoreImages = remainingImageSlots > 0;
 
   return (
     <Sheet
@@ -366,12 +368,13 @@ export function ProductsMutateDrawer({
         onOpenChange(v)
         if (!v) {
           form.reset()
-          setUploadedVideoUrl('')
-          removeVideo()
+          setUploadedImages([])
+          setSelectedFiles([])
+          setPreviewUrls([])
+          // setAdditionalInfo([{ key: '', value: '' }])
           setVariants([])
-          if (previewUrl) {
-            URL.revokeObjectURL(previewUrl)
-          }
+
+          previewUrls.forEach(url => URL.revokeObjectURL(url))
         }
       }}
     >
@@ -485,8 +488,8 @@ export function ProductsMutateDrawer({
                           control={form.control}
                           name="subCategoryId"
                           render={({ field }) => {
-                            const selectedCategoryId = form.watch('categoryId')
-                            const isDisabled = !selectedCategoryId
+                            const selectedCategoryId = form.watch('categoryId');
+                            const isDisabled = !selectedCategoryId;
 
                             return (
                               <FormItem
@@ -559,110 +562,127 @@ export function ProductsMutateDrawer({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name='size'
-              render={({ field }) => (
-                <FormItem className='space-y-1'>
-                  <FormLabel>Size</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder='Enter the product size' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className="space-y-3">
-              <FormLabel>Product Video</FormLabel>
+              <div className="flex justify-between items-center">
+                <FormLabel>Product Images</FormLabel>
+                <span className="text-sm text-gray-500">
+                  {uploadedImages.length} of {MAX_IMAGES} images
+                </span>
+              </div>
 
-              {!uploadedVideoUrl ? (
-                <>
-                  {!selectedVideo ? (
-                    <div
-                      className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-md cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-                      onClick={handleBrowseClick}
+              {canAddMoreImages ? (
+                <div
+                  className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-md ${!canAddMoreImages ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                    } ${isDragging ? 'bg-blue-50 border-blue-300' : 'bg-gray-50 hover:bg-gray-100'
+                    } transition-colors duration-200`}
+                  onDrop={canAddMoreImages ? handleDrop : undefined}
+                  onDragOver={canAddMoreImages ? handleDragOver : undefined}
+                  onDragEnter={canAddMoreImages ? handleDragEnter : undefined}
+                  onDragLeave={canAddMoreImages ? handleDragLeave : undefined}
+                  onClick={canAddMoreImages ? handleBrowseClick : undefined}
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      className={`w-8 h-8 mb-4 ${isDragging ? 'text-blue-500' : 'text-gray-500'}`}
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 16"
                     >
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg
-                          className="w-8 h-8 mb-4 text-gray-500"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 20 16"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                          />
-                        </svg>
-                        <p className="mb-2 text-sm text-gray-500">
-                          <span className="font-semibold">Click to select</span> a video
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          MP4, MOV, AVI, WebM
-                        </p>
-                      </div>
-                      <input
-                        ref={videoInputRef}
-                        type="file"
-                        className="hidden"
-                        onChange={handleVideoSelect}
-                        accept="video/*"
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                       />
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="relative group">
-                        <video
-                          src={previewUrl}
-                          controls
-                          className="w-full h-64 object-contain rounded-md bg-black"
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Click to select</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      SVG, PNG, JPG (MAX. 1000x1000px) - {remainingImageSlots} slot{remainingImageSlots !== 1 ? 's' : ''} left
+                    </p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                    multiple
+                    accept="image/*"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-full py-4 bg-gray-50 border border-gray-200 rounded-md">
+                  <p className="text-sm text-gray-500">Maximum of {MAX_IMAGES} images allowed. Remove some images to add more.</p>
+                </div>
+              )}
+
+              {previewUrls.length > 0 && (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-3 gap-2">
+                    {previewUrls.map((url, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={url}
+                          alt={`Selected preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-md"
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-md pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-md"></div>
                         <Button
                           type="button"
                           variant="destructive"
                           size="icon"
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                          onClick={removeVideo}
+                          className="absolute top-1 right-1 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeSelectedImage(index);
+                          }}
                         >
-                          <HiOutlineTrash className="w-4 h-4" />
+                          <HiOutlineTrash className="w-3 h-3" />
                         </Button>
                       </div>
-                      <Button
-                        type="button"
-                        onClick={handleUploadVideo}
-                        disabled={isUploading}
-                        className="w-full"
-                      >
-                        {isUploading ? 'Uploading...' : 'Upload Video'}
-                      </Button>
-                    </div>
-                  )}
-                </>
-              ) : (
+                    ))}
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={handleUploadImages}
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    Upload Selected Images
+                  </Button>
+                </div>
+              )}
+
+              {uploadedImages.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Uploaded Video</h3>
-                  <div className="relative group">
-                    <video
-                      src={uploadedVideoUrl}
-                      controls
-                      className="w-full h-64 object-contain rounded-md bg-black"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-md pointer-events-none"></div>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      onClick={removeUploadedVideo}
-                    >
-                      <HiOutlineTrash className="w-4 h-4" />
-                    </Button>
+                  <h3 className="text-sm font-medium">Uploaded Images</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {uploadedImages.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={image}
+                          alt={`Uploaded image ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-md"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-md"></div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeUploadedImage(index);
+                          }}
+                        >
+                          <HiOutlineTrash className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
