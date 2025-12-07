@@ -21,7 +21,10 @@ export const orderSchema = z.object({
       }).nullable().optional(),
       subCategory: z.object({
         name: z.string().nonempty()
-      }).nullable().optional()
+      }).nullable().optional(),
+      reels: z.array(z.object({
+        size: z.string().nonempty(),
+      })).optional()
     }),
     variant: z.object({
       id: z.string().nonempty(),

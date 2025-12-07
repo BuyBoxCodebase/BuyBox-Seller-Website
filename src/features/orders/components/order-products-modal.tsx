@@ -98,6 +98,9 @@ const OrderProductsModal = ({
                     {product.product.subCategory && (
                       <p className="text-sm font-medium">Subcategory: {product.product.subCategory.name}</p>
                     )}
+                    {product.product.reels?.[0]?.size && (
+                      <p className="text-sm font-medium">Reel Size: {product.product.reels[0].size}</p>
+                    )}
                   </div>
                   {index < products.length - 1 && <Separator />}
                 </div>
