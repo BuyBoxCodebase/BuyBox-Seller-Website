@@ -18,9 +18,15 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const task = orderSchema.parse(row.original)
+  // safeParse, not parse: a single row the schema doesn't recognise used to throw
+  // here and take the whole page down via the root errorComponent.
+  const parsed = orderSchema.safeParse(row.original)
 
   const { setOpen, setCurrentRow } = useOrder()
+
+  if (!parsed.success) return null
+
+  const task = parsed.data
 
   return (
     <DropdownMenu modal={false}>

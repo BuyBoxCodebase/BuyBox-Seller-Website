@@ -6,9 +6,15 @@ export const orderSchema = z.object({
   email: z.string().email(),
   phoneNumber: z.string().optional(),
   address: z.string().nonempty(),
-  status: z.enum(['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED']),
+  status: z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELED', 'OUT_OF_STOCK']),
   totalAmount: z.number().positive(),
-  paymentMode: z.enum(['CASH_ON_DELIVERY', 'ONLINE', 'CARD']),
+  paymentMode: z.enum([
+    'CASH_ON_DELIVERY',
+    'CREDIT_CARD',
+    'DEBIT_CARD',
+    'UPI',
+    'NETBANKING',
+  ]),
   deliveryAgentId: z.string().nullable(),
   createdAt: z.string().datetime(),
   products: z.array(z.object({
@@ -50,3 +56,19 @@ export const orderSchema = z.object({
 })
 
 export type Order = z.infer<typeof orderSchema>
+export type OrderStatus = Order['status']
+
+// What a seller can set a PENDING order to, mirroring
+// OrderService.SELLER_SETTABLE_STATUSES on the backend.
+export const sellerActions = [
+  { label: 'Accept Order', value: 'PROCESSING' },
+  { label: 'Out of Stock', value: 'OUT_OF_STOCK' },
+] as const satisfies ReadonlyArray<{ label: string; value: OrderStatus }>
+
+export const statusLabels: Record<OrderStatus, string> = {
+  PENDING: 'Pending',
+  PROCESSING: 'Accepted',
+  COMPLETED: 'Completed',
+  CANCELED: 'Cancelled',
+  OUT_OF_STOCK: 'Out of Stock',
+}

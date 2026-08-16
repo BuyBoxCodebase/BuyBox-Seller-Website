@@ -12,6 +12,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  RowData,
 } from '@tanstack/react-table'
 import {
   Table,
@@ -23,18 +24,27 @@ import {
 } from '@/components/ui/table'
 import { DataTablePagination } from './order-data-table-pagination'
 import { DataTableToolbar } from './order-data-table-toolbar'
-import { Order } from '../data/schema'
+import { Order, OrderStatus } from '../data/schema'
+
+declare module '@tanstack/react-table' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData extends RowData> {
+    onStatusChange?: (orderId: string, status: OrderStatus) => void
+  }
+}
 
 interface OrderDataTableProps<TData extends Order, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   isLoading?: boolean
+  onStatusChange?: (orderId: string, status: OrderStatus) => void
 }
 
 export function OrderDataTable<TData extends Order, TValue>({
   columns,
   data,
   isLoading = false,
+  onStatusChange,
 }: OrderDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -45,6 +55,9 @@ export function OrderDataTable<TData extends Order, TValue>({
   const table = useReactTable({
     data,
     columns,
+    meta: {
+      onStatusChange,
+    },
     state: {
       sorting,
       columnVisibility,

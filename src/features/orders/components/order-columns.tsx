@@ -4,9 +4,9 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Order } from '../data/schema'
 import { DataTableColumnHeader } from './order-data-table-column-header'
 import { DataTableRowActions } from './order-data-table-row-actions'
-import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import OrderProductsModal from './order-products-modal'
+import { OrderStatusCell } from './order-status-cell'
 
 export const columns: ColumnDef<Order>[] = [
   {
@@ -66,22 +66,12 @@ export const columns: ColumnDef<Order>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Status' />
     ),
-    cell: ({ row }) => {
-      const status = row.getValue('status') as string
-      return (
-        <Badge className={`
-          ${status === 'DELIVERED' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
-            status === 'CANCELLED' ? 'bg-red-100 text-red-800 hover:bg-red-200' :
-              status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' :
-                status === 'PROCESSING' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' :
-                  status === 'SHIPPED' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200' :
-                    'bg-gray-100 text-gray-800 hover:bg-gray-200'
-          }
-        `}>
-          {status}
-        </Badge>
-      )
-    },
+    cell: ({ row, table }) => (
+      <OrderStatusCell
+        order={row.original}
+        onStatusChange={table.options.meta?.onStatusChange}
+      />
+    ),
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
     },

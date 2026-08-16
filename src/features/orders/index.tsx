@@ -8,12 +8,25 @@ import { OrderDataTable } from './components/order-data-table'
 import TasksProvider from './context/tasks-context'
 import { columns } from './components/order-columns'
 import useGetAllOrders from '@/hooks/orders/useGetOrders'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { OrderStatus } from './data/schema'
 
 export default function Orders() {
-  const { orders, loading } = useGetAllOrders();
+  const { orders, setOrders, loading } = useGetAllOrders();
   const navigate = useNavigate();
+
+  // The PATCH already succeeded, so patch the row in place rather than refetching.
+  const handleStatusChange = useCallback(
+    (orderId: string, status: OrderStatus) => {
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId ? { ...order, status } : order
+        )
+      )
+    },
+    [setOrders]
+  );
   useEffect(() => {
     const token = sessionStorage.getItem('token')
     token == null ? navigate({ to: '/landing' }) : null
@@ -39,7 +52,12 @@ export default function Orders() {
           </div>
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
-          <OrderDataTable data={orders} columns={columns} isLoading={loading} />
+          <OrderDataTable
+            data={orders}
+            columns={columns}
+            isLoading={loading}
+            onStatusChange={handleStatusChange}
+          />
         </div>
       </Main>
       {/* <TasksDialogs /> */}
