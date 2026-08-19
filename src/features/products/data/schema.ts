@@ -15,12 +15,13 @@ export const productSchema = z.object({
   category: z.object({
     id: z.string().nonempty(),
     name: z.string().nonempty(),
-    imageUrl: z.string().nonempty(),
+    // categories may legitimately have no image yet — don't fail the whole row
+    imageUrl: z.string(),
   }).nullable(),
   subCategory: z.object({
     id: z.string().nonempty(),
     name: z.string().nonempty(),
-    imageUrl: z.string().nonempty(),
+    imageUrl: z.string(),
     categoryId: z.string().nonempty(),
   }).nullable(),
   price: z.number(),
