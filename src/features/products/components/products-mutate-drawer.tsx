@@ -33,6 +33,29 @@ import { Product } from '../data/schema'
 import { useCategories } from '@/context/category/category-context'
 import { useSubCategories } from '@/context/category/subcategory-context'
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+
+interface GeneratedVariant {
+  id: string;
+  name: string;
+  options: { optionName: string, value: string }[];
+  price: number;
+  inventory: number;
+}
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -70,6 +93,7 @@ export function ProductsMutateDrawer({
   const [variants, setVariants] = useState<Variant[]>([])
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false)
   const [currentVariant, setCurrentVariant] = useState<Variant | undefined>(undefined)
+  const [generatedVariants, setGeneratedVariants] = useState<GeneratedVariant[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { categories } = useCategories()
@@ -106,6 +130,34 @@ export function ProductsMutateDrawer({
       setVariants([])
     }
   }, [isUpdate, currentRow, open])
+
+  useEffect(() => {
+    if (variants.length === 0) {
+      setGeneratedVariants([])
+      return
+    }
+
+    const optionValues = variants.map(v => v.values.map(val => ({ optionName: v.name, value: val.value })))
+    
+    const cartesianProduct = optionValues.reduce((a, b) => 
+      a.flatMap(d => b.map(e => [...d, e])),
+      [[]] as { optionName: string, value: string }[][]
+    )
+
+    setGeneratedVariants(prev => {
+      return cartesianProduct.map(combination => {
+        const name = combination.map(c => c.value).join(' - ')
+        const existing = prev.find(gv => gv.name === name)
+        return {
+          id: existing?.id || `gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          name,
+          options: combination,
+          price: existing ? existing.price : form.getValues('price'),
+          inventory: existing ? existing.inventory : form.getValues('inventory'),
+        }
+      })
+    })
+  }, [variants])
 
   useEffect(() => {
     const categoryId = form.watch('categoryId')
@@ -319,6 +371,12 @@ export function ProductsMutateDrawer({
       basePrice: data.price,
       images: uploadedImages,
       options: formattedOptions,
+      generatedVariants: generatedVariants.map(gv => ({
+        name: gv.name,
+        price: gv.price,
+        inventory: gv.inventory,
+        options: gv.options,
+      }))
     }
 
     const url = `${baseUrl}/product/${isUpdate ? `update/${currentRow && currentRow.id}` : 'create'}`
@@ -378,7 +436,7 @@ export function ProductsMutateDrawer({
         }
       }}
     >
-      <SheetContent className="flex flex-col overflow-y-auto max-h-screen w-full">
+      <SheetContent className="flex flex-col overflow-y-auto max-h-screen w-full sm:max-w-[768px]">
         <SheetHeader className='text-left'>
           <SheetTitle>
             {isUpdate ? 'Update' : 'Create'} Product
@@ -431,43 +489,24 @@ export function ProductsMutateDrawer({
             <FormField
               control={form.control}
               name="categoryId"
-              render={() => (
+              render={({ field }) => (
                 <FormItem className="space-y-3">
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <div className="space-y-2">
-                      {categories && categories.map((category) => (
-                        <FormField
-                          key={category.id}
-                          control={form.control}
-                          name="categoryId"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={category.id}
-                                className="flex flex-row items-center space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={Array.isArray(field.value) ? field.value.includes(category.id) : field.value === category.id}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        field.onChange(category.id);
-                                      } else {
-                                        field.onChange('');
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="text-sm font-normal">
-                                  {category.name}
-                                </FormLabel>
-                              </FormItem>
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories?.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -477,47 +516,24 @@ export function ProductsMutateDrawer({
             <FormField
               control={form.control}
               name="subCategoryId"
-              render={() => (
+              render={({ field }) => (
                 <FormItem className="space-y-3">
                   <FormLabel>Sub Category</FormLabel>
                   <FormControl>
-                    <div className="space-y-2">
-                      {filteredSubCategories.map((subCategory) => (
-                        <FormField
-                          key={subCategory.id}
-                          control={form.control}
-                          name="subCategoryId"
-                          render={({ field }) => {
-                            const selectedCategoryId = form.watch('categoryId');
-                            const isDisabled = !selectedCategoryId;
-
-                            return (
-                              <FormItem
-                                key={subCategory.id}
-                                className="flex flex-row items-center space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    disabled={isDisabled}
-                                    checked={Array.isArray(field.value) ? field.value.includes(subCategory.id) : field.value === subCategory.id}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        field.onChange(subCategory.id);
-                                      } else {
-                                        field.onChange('');
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className={`text-sm font-normal ${isDisabled ? 'text-muted-foreground' : ''}`}>
-                                  {subCategory.name}
-                                </FormLabel>
-                              </FormItem>
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value} disabled={!form.watch('categoryId')}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a sub category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredSubCategories?.map((subCategory) => (
+                          <SelectItem key={subCategory.id} value={subCategory.id}>
+                            {subCategory.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -738,18 +754,146 @@ export function ProductsMutateDrawer({
                 </div>
               )}
 
+              <div className="grid grid-cols-3 gap-2 w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 text-xs sm:text-sm"
+                  onClick={() => {
+                    if (!variants.some(v => v.name.toLowerCase() === 'size')) {
+                      handleSaveVariant({
+                        id: `variant-${Date.now()}`,
+                        name: 'Size',
+                        values: [{ value: 'S' }, { value: 'M' }, { value: 'L' }, { value: 'XL' }]
+                      })
+                    } else {
+                      toast({ title: 'Variant already exists', description: 'A Size variant is already present.' })
+                    }
+                  }}
+                >
+                  <HiOutlinePlusCircle className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="truncate">Size</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full px-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200 text-xs sm:text-sm"
+                  onClick={() => {
+                    if (!variants.some(v => v.name.toLowerCase() === 'color')) {
+                      handleSaveVariant({
+                        id: `variant-${Date.now()}`,
+                        name: 'Color',
+                        values: [{ value: 'Black' }, { value: 'White' }]
+                      })
+                    } else {
+                      toast({ title: 'Variant already exists', description: 'A Color variant is already present.' })
+                    }
+                  }}
+                >
+                  <HiOutlinePlusCircle className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="truncate">Color</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full px-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 text-xs sm:text-sm"
+                  onClick={() => {
+                    if (!variants.some(v => v.name.toLowerCase() === 'material')) {
+                      handleSaveVariant({
+                        id: `variant-${Date.now()}`,
+                        name: 'Material',
+                        values: [{ value: 'Cotton' }, { value: 'Polyester' }, { value: 'Leather' }]
+                      })
+                    } else {
+                      toast({ title: 'Variant already exists', description: 'A Material variant is already present.' })
+                    }
+                  }}
+                >
+                  <HiOutlinePlusCircle className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="">Material</span>
+                </Button>
+              </div>
+
               <Button
                 type="button"
                 variant="secondary"
-                className="w-full"
+                className="w-full mt-2"
                 onClick={() => {
                   setCurrentVariant(undefined)
                   setIsVariantModalOpen(true)
                 }}
               >
                 <HiOutlinePlusCircle className="w-5 h-5 mr-2" />
-                Add Variant
+                Add Custom Variant
               </Button>
+
+              {generatedVariants.length > 0 && (
+                <div className="space-y-3 mt-6 border-t pt-4">
+                  <FormLabel>Generated Variants ({generatedVariants.length})</FormLabel>
+                  <div className="border rounded-md overflow-hidden">
+                    <Table>
+                      <TableHeader className="bg-gray-50">
+                        <TableRow>
+                          <TableHead>Variant</TableHead>
+                          <TableHead className="w-24">Price</TableHead>
+                          <TableHead className="w-24">Inventory</TableHead>
+                          <TableHead className="w-10"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {generatedVariants.map((gv, index) => (
+                          <TableRow key={gv.id}>
+                            <TableCell className="font-medium">
+                              <div className="flex flex-wrap gap-1">
+                                {gv.options.map((opt, i) => (
+                                  <Badge key={i} variant="outline" className="text-xs">{opt.value}</Badge>
+                                ))}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Input 
+                                type="number" 
+                                className="h-8 w-20 text-sm" 
+                                value={gv.price}
+                                onChange={(e) => {
+                                  const newVariants = [...generatedVariants];
+                                  newVariants[index].price = parseFloat(e.target.value) || 0;
+                                  setGeneratedVariants(newVariants);
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input 
+                                type="number" 
+                                className="h-8 w-20 text-sm" 
+                                value={gv.inventory}
+                                onChange={(e) => {
+                                  const newVariants = [...generatedVariants];
+                                  newVariants[index].inventory = parseFloat(e.target.value) || 0;
+                                  setGeneratedVariants(newVariants);
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-500 hover:text-red-700 h-8 w-8 p-0"
+                                onClick={() => {
+                                  setGeneratedVariants(prev => prev.filter((_, i) => i !== index));
+                                }}
+                              >
+                                <HiOutlineTrash className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
             </div>}
           </form>
         </Form>
