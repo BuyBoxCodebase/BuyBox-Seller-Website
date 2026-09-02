@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, KeyboardEvent } from 'react'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,7 +10,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { HiOutlinePlusCircle, HiOutlineTrash } from 'react-icons/hi'
+import { Badge } from '@/components/ui/badge'
+import { HiX } from 'react-icons/hi'
 
 interface VariantValue {
   id?: string
@@ -38,51 +39,59 @@ export function AddVariantModal({
 }: AddVariantModalProps) {
   const [name, setName] = useState(existingVariant?.name || '')
   const [values, setValues] = useState<VariantValue[]>(
-    existingVariant?.values || [{ value: '' }]
+    existingVariant?.values || []
   )
+  const [inputValue, setInputValue] = useState('')
 
   const isEditing = !!existingVariant
 
-  // Add this useEffect to update state when existingVariant changes
   useEffect(() => {
     if (existingVariant) {
       setName(existingVariant.name || '')
-      setValues(existingVariant.values || [{ value: '' }])
+      setValues(existingVariant.values || [])
     } else {
-      // Reset form when not editing
       resetForm()
     }
   }, [existingVariant, open])
 
   const resetForm = () => {
     setName('')
-    setValues([{ value: '' }])
+    setValues([])
+    setInputValue('')
   }
 
-  const handleAddValue = () => {
-    setValues([...values, { value: '' }])
+  const handleAddTag = (val: string) => {
+    const trimmed = val.trim().replace(/,$/, '')
+    if (!trimmed) return
+    if (values.some(v => v.value.toLowerCase() === trimmed.toLowerCase())) {
+      toast({ title: 'Duplicate value', description: `${trimmed} is already added.` })
+      return
+    }
+    setValues([...values, { value: trimmed }])
   }
 
-  const handleValueChange = (index: number, newValue: string) => {
-    const updatedValues = [...values]
-    updatedValues[index].value = newValue
-    setValues(updatedValues)
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      handleAddTag(inputValue)
+      setInputValue('')
+    }
   }
 
   const handleRemoveValue = (index: number) => {
-    if (values.length === 1) {
-      toast({
-        title: 'Cannot remove',
-        description: 'A variant must have at least one value',
-      })
-      return
-    }
-    
-    const updatedValues = values.filter((_, i) => i !== index)
-    setValues(updatedValues)
+    setValues(values.filter((_, i) => i !== index))
   }
 
   const handleSave = () => {
+    // If there is lingering input, add it right before saving
+    let finalValues = [...values]
+    if (inputValue.trim()) {
+      const trimmed = inputValue.trim().replace(/,$/, '')
+      if (!values.some(v => v.value.toLowerCase() === trimmed.toLowerCase())) {
+        finalValues.push({ value: trimmed })
+      }
+    }
+
     if (!name.trim()) {
       toast({
         title: 'Variant name required',
@@ -91,12 +100,10 @@ export function AddVariantModal({
       return
     }
 
-    const filteredValues = values.filter(v => v.value.trim() !== '')
-    
-    if (filteredValues.length === 0) {
+    if (finalValues.length === 0) {
       toast({
         title: 'Variant values required',
-        description: 'Please add at least one value for this variant',
+        description: 'Please add at least one value for this variant (press Enter to add a value)',
       })
       return
     }
@@ -104,7 +111,7 @@ export function AddVariantModal({
     const variant: Variant = {
       id: existingVariant?.id,
       name: name.trim(),
-      values: filteredValues,
+      values: finalValues,
     }
 
     onSave(variant)
@@ -121,9 +128,9 @@ export function AddVariantModal({
     }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit' : 'Add'} Variant</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit' : 'Add Custom'} Variant</DialogTitle>
           <DialogDescription>
-            Create a variant like Size or Color with multiple values.
+            Type a variant name and its values. Press <kbd className="px-1 py-0.5 rounded-sm bg-gray-100 text-xs font-mono">Enter</kbd> to add multiple values quickly.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -133,42 +140,73 @@ export function AddVariantModal({
             </label>
             <Input
               id="variant-name"
-              placeholder="E.g., Size, Color, Material"
+              placeholder="E.g., Material, Flavor, Size"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
 
+          {name.toLowerCase() === 'size' && (
+             <div className="flex gap-2 text-xs flex-wrap">
+               <span className="text-gray-500 flex items-center">Suggestions:</span>
+               {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(s => (
+                 <Badge key={s} variant="outline" className="cursor-pointer hover:bg-gray-100 text-gray-600" onClick={() => handleAddTag(s)}>+ {s}</Badge>
+               ))}
+             </div>
+          )}
+
+          {name.toLowerCase() === 'color' && (
+             <div className="flex gap-2 text-xs flex-wrap">
+               <span className="text-gray-500 flex items-center">Suggestions:</span>
+               {['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow'].map(s => (
+                 <Badge key={s} variant="outline" className="cursor-pointer hover:bg-gray-100 text-gray-600" onClick={() => handleAddTag(s)}>+ {s}</Badge>
+               ))}
+             </div>
+          )}
+
+          {name.toLowerCase() === 'material' && (
+             <div className="flex gap-2 text-xs flex-wrap">
+               <span className="text-gray-500 flex items-center">Suggestions:</span>
+               {['Cotton', 'Polyester', 'Leather', 'Denim', 'Silk', 'Wool'].map(s => (
+                 <Badge key={s} variant="outline" className="cursor-pointer hover:bg-gray-100 text-gray-600" onClick={() => handleAddTag(s)}>+ {s}</Badge>
+               ))}
+             </div>
+          )}
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Values</label>
-            {values.map((valueObj, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Input
-                  placeholder={`E.g., ${name === 'Size' ? 'S, M, L' : name === 'Color' ? 'Red, Blue' : 'Value'}`}
-                  value={valueObj.value}
-                  onChange={(e) => handleValueChange(index, e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveValue(index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <HiOutlineTrash className="w-5 h-5" />
-                </Button>
-              </div>
-            ))}
-
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleAddValue}
-              className="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800"
+            <div 
+              className="flex flex-wrap gap-2 p-2 border rounded-md focus-within:ring-1 focus-within:ring-ring focus-within:border-primary bg-white min-h-[80px] items-start"
+              onClick={() => document.getElementById('tag-input')?.focus()}
             >
-              <HiOutlinePlusCircle className="w-5 h-5" />
-              <span>Add Another Value</span>
-            </Button>
+              {values.map((v, i) => (
+                <Badge key={i} variant="secondary" className="flex items-center gap-1 pr-1 text-sm font-normal py-1">
+                  {v.value}
+                  <button 
+                    type="button" 
+                    onClick={(e) => { e.stopPropagation(); handleRemoveValue(i) }} 
+                    className="text-gray-500 hover:text-red-500 focus:outline-none rounded-full p-0.5 hover:bg-gray-200 transition-colors"
+                  >
+                    <HiX className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+              <input
+                id="tag-input"
+                className="flex-1 outline-none bg-transparent min-w-[120px] text-sm py-1"
+                placeholder={values.length === 0 ? "e.g., Cotton, Leather..." : ""}
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={() => {
+                  if (inputValue) {
+                    handleAddTag(inputValue)
+                    setInputValue('')
+                  }
+                }}
+              />
+            </div>
+            <p className="text-xs text-gray-500">Press Enter or comma to create a tag</p>
           </div>
         </div>
         <DialogFooter>
