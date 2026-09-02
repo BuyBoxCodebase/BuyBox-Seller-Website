@@ -32,7 +32,7 @@ import { SubCategory } from '@/features/subcategories/data/schema'
 import { Product } from '../data/schema'
 import { useCategories } from '@/context/category/category-context'
 import { useSubCategories } from '@/context/category/subcategory-context'
-import { Checkbox } from "@/components/ui/checkbox"
+
 import {
   Select,
   SelectContent,
