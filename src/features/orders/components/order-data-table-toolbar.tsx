@@ -5,19 +5,21 @@ import { Input } from '@/components/ui/input'
 import { DataTableViewOptions } from './order-data-table-view-options'
 import { DataTableFacetedFilter } from './order-data-table-faceted-filter'
 
-// Define the order statuses and payment modes based on the schema
+// Mirrors the OrderStatus / PaymentMode enums in the backend's schema.prisma.
 const orderStatuses = [
   { label: 'Pending', value: 'PENDING' },
-  { label: 'Processing', value: 'PROCESSING' },
-  { label: 'Shipped', value: 'SHIPPED' },
-  { label: 'Delivered', value: 'DELIVERED' },
-  { label: 'Cancelled', value: 'CANCELLED' },
+  { label: 'Accepted', value: 'PROCESSING' },
+  { label: 'Completed', value: 'COMPLETED' },
+  { label: 'Cancelled', value: 'CANCELED' },
+  { label: 'Out of Stock', value: 'OUT_OF_STOCK' },
 ]
 
 const paymentModes = [
   { label: 'Cash on Delivery', value: 'CASH_ON_DELIVERY' },
-  { label: 'Online', value: 'ONLINE' },
-  { label: 'Card', value: 'CARD' },
+  { label: 'Credit Card', value: 'CREDIT_CARD' },
+  { label: 'Debit Card', value: 'DEBIT_CARD' },
+  { label: 'UPI', value: 'UPI' },
+  { label: 'Netbanking', value: 'NETBANKING' },
 ]
 
 interface DataTableToolbarProps<TData> {

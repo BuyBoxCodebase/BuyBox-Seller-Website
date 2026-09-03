@@ -33,5 +33,5 @@ export default function useGetAllOrders() {
         fetchCategories()
     }, [])
 
-    return { orders, loading }
+    return { orders, setOrders, loading }
 }
