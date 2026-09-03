@@ -53,8 +53,9 @@ interface GeneratedVariant {
   id: string;
   name: string;
   options: { optionName: string, value: string }[];
-  price: number;
-  inventory: number;
+  price: number | '';
+  inventory: number | '';
+  image?: string;
 }
 interface Props {
   open: boolean
@@ -154,6 +155,7 @@ export function ProductsMutateDrawer({
           options: combination,
           price: existing ? existing.price : form.getValues('price'),
           inventory: existing ? existing.inventory : form.getValues('inventory'),
+          image: existing?.image,
         }
       })
     })
@@ -302,9 +304,15 @@ export function ProductsMutateDrawer({
       })
 
       if (!response.ok) {
+        let errMessage = 'Please try again.';
+        try {
+          const errData = await response.json();
+          errMessage = errData.message || errMessage;
+        } catch (e) {}
         toast({
           title: 'Failed to upload images',
-          description: 'Please try again.',
+          description: Array.isArray(errMessage) ? errMessage.join(', ') : errMessage,
+          variant: 'destructive',
         })
         return
       }
@@ -373,9 +381,10 @@ export function ProductsMutateDrawer({
       options: formattedOptions,
       generatedVariants: generatedVariants.map(gv => ({
         name: gv.name,
-        price: gv.price,
-        inventory: gv.inventory,
+        price: Number(gv.price) || 0,
+        inventory: Number(gv.inventory) || 0,
         options: gv.options,
+        image: gv.image,
       }))
     }
 
@@ -837,6 +846,7 @@ export function ProductsMutateDrawer({
                           <TableHead>Variant</TableHead>
                           <TableHead className="w-24">Price</TableHead>
                           <TableHead className="w-24">Inventory</TableHead>
+                          <TableHead className="w-28">Image</TableHead>
                           <TableHead className="w-10"></TableHead>
                         </TableRow>
                       </TableHeader>
@@ -857,7 +867,7 @@ export function ProductsMutateDrawer({
                                 value={gv.price}
                                 onChange={(e) => {
                                   const newVariants = [...generatedVariants];
-                                  newVariants[index].price = parseFloat(e.target.value) || 0;
+                                  newVariants[index].price = e.target.value === '' ? '' : parseFloat(e.target.value);
                                   setGeneratedVariants(newVariants);
                                 }}
                               />
@@ -869,10 +879,54 @@ export function ProductsMutateDrawer({
                                 value={gv.inventory}
                                 onChange={(e) => {
                                   const newVariants = [...generatedVariants];
-                                  newVariants[index].inventory = parseFloat(e.target.value) || 0;
+                                  newVariants[index].inventory = e.target.value === '' ? '' : parseFloat(e.target.value);
                                   setGeneratedVariants(newVariants);
                                 }}
                               />
+                            </TableCell>
+                            <TableCell>
+                              <Select
+                                disabled={uploadedImages.length === 0}
+                                value={gv.image || "default"}
+                                onValueChange={(val) => {
+                                  const newVariants = [...generatedVariants];
+                                  newVariants[index].image = val === "default" ? undefined : val;
+                                  setGeneratedVariants(newVariants);
+                                }}
+                              >
+                                <SelectTrigger className="h-8 w-28 px-2">
+                                  <div className="flex items-center gap-2 truncate">
+                                    {gv.image ? (
+                                      <img src={gv.image} className="w-4 h-4 object-cover rounded" alt="Variant" />
+                                    ) : (
+                                      <>
+                                        {uploadedImages.length > 0 && (
+                                          <img src={uploadedImages[0]} className="w-4 h-4 object-cover rounded opacity-50" alt="Base" />
+                                        )}
+                                        <span className="text-xs text-muted-foreground">{uploadedImages.length === 0 ? 'Upload 1st' : 'Auto'}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="default">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      {uploadedImages.length > 0 && (
+                                        <img src={uploadedImages[0]} className="w-4 h-4 object-cover rounded opacity-50" alt="Base" />
+                                      )}
+                                      <span>Auto (Base Images)</span>
+                                    </div>
+                                  </SelectItem>
+                                  {uploadedImages.map((img, imgIndex) => (
+                                    <SelectItem key={imgIndex} value={img}>
+                                      <div className="flex items-center gap-2">
+                                        <img src={img} className="w-4 h-4 object-cover rounded" alt={`Img ${imgIndex + 1}`} />
+                                        <span>Img {imgIndex + 1}</span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </TableCell>
                             <TableCell>
                               <Button
