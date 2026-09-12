@@ -10,6 +10,7 @@ export const productSchema = z.object({
   subCategoryId: z.string().nullable(),
   basePrice: z.number(),
   attributes: z.unknown(),
+  labels: z.array(z.string()),
   createdAt: z.string().nonempty(),
   updatedAt: z.string().nonempty(),
   category: z.object({

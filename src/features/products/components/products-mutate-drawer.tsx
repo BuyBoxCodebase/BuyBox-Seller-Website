@@ -75,6 +75,7 @@ const formSchema = z.object({
   inventory: z.number().min(0, 'Inventory must be a positive number.'),
   categoryId: z.string().min(1, 'Category is required.'),
   subCategoryId: z.string().min(1, 'Sub-category is required.'),
+  labels: z.string().min(1, 'At least one label is required.'),
   productId: z.string().optional(),
 })
 
@@ -110,6 +111,7 @@ export function ProductsMutateDrawer({
       inventory: currentRow.inventory ? currentRow.inventory[0].quantity : 0,
       categoryId: currentRow.categoryId ?? '',
       subCategoryId: currentRow.subCategoryId ?? '',
+      labels: currentRow.labels ? currentRow.labels.join(', ') : '',
       productId: currentRow.id,
     } : {
       name: '',
@@ -118,6 +120,7 @@ export function ProductsMutateDrawer({
       inventory: 0,
       categoryId: '',
       subCategoryId: '',
+      labels: '',
       productId: '',
     },
   })
@@ -376,6 +379,7 @@ export function ProductsMutateDrawer({
 
     const formData = {
       ...data,
+      labels: data.labels ? data.labels.split(',').map(l => l.trim()).filter(Boolean) : [],
       basePrice: data.price,
       images: uploadedImages,
       options: formattedOptions,
@@ -543,6 +547,23 @@ export function ProductsMutateDrawer({
                         ))}
                       </SelectContent>
                     </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='labels'
+              render={({ field }) => (
+                <FormItem className='space-y-1'>
+                  <FormLabel>Labels (Comma separated)</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder='e.g. nike, adidas, puma'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
