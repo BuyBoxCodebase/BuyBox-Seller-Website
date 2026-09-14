@@ -111,7 +111,7 @@ export function ProductsMutateDrawer({
       inventory: currentRow.inventory ? currentRow.inventory[0].quantity : 0,
       categoryId: currentRow.categoryId ?? '',
       subCategoryId: currentRow.subCategoryId ?? '',
-      labels: currentRow.labels ? currentRow.labels.join(', ') : '',
+      labels: currentRow.labels && currentRow.labels.length > 0 ? currentRow.labels[0] : '',
       productId: currentRow.id,
     } : {
       name: '',
@@ -379,7 +379,7 @@ export function ProductsMutateDrawer({
 
     const formData = {
       ...data,
-      labels: data.labels ? data.labels.split(',').map(l => l.trim()).filter(Boolean) : [],
+      labels: data.labels ? [data.labels.trim()].filter(Boolean) : [],
       basePrice: data.price,
       images: uploadedImages,
       options: formattedOptions,
@@ -558,11 +558,11 @@ export function ProductsMutateDrawer({
               name='labels'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
-                  <FormLabel>Labels (Comma separated)</FormLabel>
+                  <FormLabel>Label</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder='e.g. nike, adidas, puma'
+                      placeholder='e.g. sale'
                     />
                   </FormControl>
                   <FormMessage />
