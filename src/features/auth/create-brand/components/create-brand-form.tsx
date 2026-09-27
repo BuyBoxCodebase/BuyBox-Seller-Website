@@ -51,7 +51,7 @@ export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
             body: JSON.stringify(formdata),
         },
     )
-    const data = await response.json()
+   await response.json()
     sessionStorage.setItem('isLoggedIn', 'true')
     sessionStorage.removeItem('isAuthenticated')
     window.location.href = '/'
