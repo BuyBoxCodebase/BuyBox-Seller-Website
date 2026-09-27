@@ -4,8 +4,8 @@ import { AccountForm } from './account-form'
 export default function SettingsAccount() {
   return (
     <ContentSection
-      title='Brand'
-      desc='Update your brand information. Set your brand image and brand name.'
+      title='Seller Profile'
+      desc='Update your seller profile information. Set your profile image, description, and location.'
     >
       <AccountForm />
     </ContentSection>

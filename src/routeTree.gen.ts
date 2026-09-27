@@ -19,8 +19,7 @@ import { Route as authSignInImport } from './routes/(auth)/sign-in'
 import { Route as authSellerImport } from './routes/(auth)/seller'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as authLandingImport } from './routes/(auth)/landing'
-import { Route as authCreateBrandImport } from './routes/(auth)/create-brand'
-import { Route as auth500Import } from './routes/(auth)/500'
+import { Route as authCreateSellerProfileImport } from './routes/(auth)/create-seller-profile'
 
 // Create Virtual Routes
 
@@ -60,6 +59,9 @@ const AuthenticatedChatsIndexLazyImport = createFileRoute(
 )()
 const AuthenticatedAppsIndexLazyImport = createFileRoute(
   '/_authenticated/apps/',
+)()
+const AuthenticatedSettingsSellerProfileLazyImport = createFileRoute(
+  '/_authenticated/settings/seller-profile',
 )()
 const AuthenticatedSettingsNotificationsLazyImport = createFileRoute(
   '/_authenticated/settings/notifications',
@@ -186,15 +188,9 @@ const authLandingRoute = authLandingImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const authCreateBrandRoute = authCreateBrandImport.update({
-  id: '/(auth)/create-brand',
-  path: '/create-brand',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const auth500Route = auth500Import.update({
-  id: '/(auth)/500',
-  path: '/500',
+const authCreateSellerProfileRoute = authCreateSellerProfileImport.update({
+  id: '/(auth)/create-seller-profile',
+  path: '/create-seller-profile',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -273,6 +269,17 @@ const AuthenticatedAppsIndexLazyRoute = AuthenticatedAppsIndexLazyImport.update(
   import('./routes/_authenticated/apps/index.lazy').then((d) => d.Route),
 )
 
+const AuthenticatedSettingsSellerProfileLazyRoute =
+  AuthenticatedSettingsSellerProfileLazyImport.update({
+    id: '/seller-profile',
+    path: '/seller-profile',
+    getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/settings/seller-profile.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
 const AuthenticatedSettingsNotificationsLazyRoute =
   AuthenticatedSettingsNotificationsLazyImport.update({
     id: '/notifications',
@@ -326,18 +333,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRoute
     }
-    '/(auth)/500': {
-      id: '/(auth)/500'
-      path: '/500'
-      fullPath: '/500'
-      preLoaderRoute: typeof auth500Import
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/create-brand': {
-      id: '/(auth)/create-brand'
-      path: '/create-brand'
-      fullPath: '/create-brand'
-      preLoaderRoute: typeof authCreateBrandImport
+    '/(auth)/create-seller-profile': {
+      id: '/(auth)/create-seller-profile'
+      path: '/create-seller-profile'
+      fullPath: '/create-seller-profile'
+      preLoaderRoute: typeof authCreateSellerProfileImport
       parentRoute: typeof rootRoute
     }
     '/(auth)/landing': {
@@ -466,6 +466,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsNotificationsLazyImport
       parentRoute: typeof AuthenticatedSettingsRouteLazyImport
     }
+    '/_authenticated/settings/seller-profile': {
+      id: '/_authenticated/settings/seller-profile'
+      path: '/seller-profile'
+      fullPath: '/settings/seller-profile'
+      preLoaderRoute: typeof AuthenticatedSettingsSellerProfileLazyImport
+      parentRoute: typeof AuthenticatedSettingsRouteLazyImport
+    }
     '/_authenticated/apps/': {
       id: '/_authenticated/apps/'
       path: '/apps'
@@ -532,6 +539,7 @@ interface AuthenticatedSettingsRouteLazyRouteChildren {
   AuthenticatedSettingsBrandLazyRoute: typeof AuthenticatedSettingsBrandLazyRoute
   AuthenticatedSettingsDisplayLazyRoute: typeof AuthenticatedSettingsDisplayLazyRoute
   AuthenticatedSettingsNotificationsLazyRoute: typeof AuthenticatedSettingsNotificationsLazyRoute
+  AuthenticatedSettingsSellerProfileLazyRoute: typeof AuthenticatedSettingsSellerProfileLazyRoute
   AuthenticatedSettingsIndexLazyRoute: typeof AuthenticatedSettingsIndexLazyRoute
 }
 
@@ -544,6 +552,8 @@ const AuthenticatedSettingsRouteLazyRouteChildren: AuthenticatedSettingsRouteLaz
       AuthenticatedSettingsDisplayLazyRoute,
     AuthenticatedSettingsNotificationsLazyRoute:
       AuthenticatedSettingsNotificationsLazyRoute,
+    AuthenticatedSettingsSellerProfileLazyRoute:
+      AuthenticatedSettingsSellerProfileLazyRoute,
     AuthenticatedSettingsIndexLazyRoute: AuthenticatedSettingsIndexLazyRoute,
   }
 
@@ -582,8 +592,7 @@ const AuthenticatedRouteRouteWithChildren =
 
 export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteRouteWithChildren
-  '/500': typeof errors500LazyRoute
-  '/create-brand': typeof authCreateBrandRoute
+  '/create-seller-profile': typeof authCreateSellerProfileRoute
   '/landing': typeof authLandingRoute
   '/otp': typeof authOtpRoute
   '/seller': typeof authSellerRoute
@@ -595,12 +604,14 @@ export interface FileRoutesByFullPath {
   '/401': typeof errors401LazyRoute
   '/403': typeof errors403LazyRoute
   '/404': typeof errors404LazyRoute
+  '/500': typeof errors500LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof AuthenticatedIndexRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/brand': typeof AuthenticatedSettingsBrandLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
+  '/settings/seller-profile': typeof AuthenticatedSettingsSellerProfileLazyRoute
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
@@ -612,8 +623,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
-  '/500': typeof errors500LazyRoute
-  '/create-brand': typeof authCreateBrandRoute
+  '/create-seller-profile': typeof authCreateSellerProfileRoute
   '/landing': typeof authLandingRoute
   '/otp': typeof authOtpRoute
   '/seller': typeof authSellerRoute
@@ -624,12 +634,14 @@ export interface FileRoutesByTo {
   '/401': typeof errors401LazyRoute
   '/403': typeof errors403LazyRoute
   '/404': typeof errors404LazyRoute
+  '/500': typeof errors500LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof AuthenticatedIndexRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/brand': typeof AuthenticatedSettingsBrandLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
+  '/settings/seller-profile': typeof AuthenticatedSettingsSellerProfileLazyRoute
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/chats': typeof AuthenticatedChatsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
@@ -643,8 +655,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/(auth)/500': typeof auth500Route
-  '/(auth)/create-brand': typeof authCreateBrandRoute
+  '/(auth)/create-seller-profile': typeof authCreateSellerProfileRoute
   '/(auth)/landing': typeof authLandingRoute
   '/(auth)/otp': typeof authOtpRoute
   '/(auth)/seller': typeof authSellerRoute
@@ -663,6 +674,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/brand': typeof AuthenticatedSettingsBrandLazyRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsLazyRoute
+  '/_authenticated/settings/seller-profile': typeof AuthenticatedSettingsSellerProfileLazyRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
@@ -677,8 +689,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | ''
-    | '/500'
-    | '/create-brand'
+    | '/create-seller-profile'
     | '/landing'
     | '/otp'
     | '/seller'
@@ -690,12 +701,14 @@ export interface FileRouteTypes {
     | '/401'
     | '/403'
     | '/404'
+    | '/500'
     | '/503'
     | '/'
     | '/settings/appearance'
     | '/settings/brand'
     | '/settings/display'
     | '/settings/notifications'
+    | '/settings/seller-profile'
     | '/apps'
     | '/chats'
     | '/help-center'
@@ -706,8 +719,7 @@ export interface FileRouteTypes {
     | '/videos'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/500'
-    | '/create-brand'
+    | '/create-seller-profile'
     | '/landing'
     | '/otp'
     | '/seller'
@@ -718,12 +730,14 @@ export interface FileRouteTypes {
     | '/401'
     | '/403'
     | '/404'
+    | '/500'
     | '/503'
     | '/'
     | '/settings/appearance'
     | '/settings/brand'
     | '/settings/display'
     | '/settings/notifications'
+    | '/settings/seller-profile'
     | '/apps'
     | '/chats'
     | '/help-center'
@@ -735,8 +749,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
-    | '/(auth)/500'
-    | '/(auth)/create-brand'
+    | '/(auth)/create-seller-profile'
     | '/(auth)/landing'
     | '/(auth)/otp'
     | '/(auth)/seller'
@@ -755,6 +768,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/brand'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/settings/seller-profile'
     | '/_authenticated/apps/'
     | '/_authenticated/chats/'
     | '/_authenticated/help-center/'
@@ -768,8 +782,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  auth500Route: typeof auth500Route
-  authCreateBrandRoute: typeof authCreateBrandRoute
+  authCreateSellerProfileRoute: typeof authCreateSellerProfileRoute
   authLandingRoute: typeof authLandingRoute
   authOtpRoute: typeof authOtpRoute
   authSellerRoute: typeof authSellerRoute
@@ -786,8 +799,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  auth500Route: auth500Route,
-  authCreateBrandRoute: authCreateBrandRoute,
+  authCreateSellerProfileRoute: authCreateSellerProfileRoute,
   authLandingRoute: authLandingRoute,
   authOtpRoute: authOtpRoute,
   authSellerRoute: authSellerRoute,
@@ -813,8 +825,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/_authenticated",
-        "/(auth)/500",
-        "/(auth)/create-brand",
+        "/(auth)/create-seller-profile",
         "/(auth)/landing",
         "/(auth)/otp",
         "/(auth)/seller",
@@ -843,11 +854,8 @@ export const routeTree = rootRoute
         "/_authenticated/videos/"
       ]
     },
-    "/(auth)/500": {
-      "filePath": "(auth)/500.tsx"
-    },
-    "/(auth)/create-brand": {
-      "filePath": "(auth)/create-brand.tsx"
+    "/(auth)/create-seller-profile": {
+      "filePath": "(auth)/create-seller-profile.tsx"
     },
     "/(auth)/landing": {
       "filePath": "(auth)/landing.tsx"
@@ -869,6 +877,7 @@ export const routeTree = rootRoute
         "/_authenticated/settings/brand",
         "/_authenticated/settings/display",
         "/_authenticated/settings/notifications",
+        "/_authenticated/settings/seller-profile",
         "/_authenticated/settings/"
       ]
     },
@@ -914,6 +923,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/settings/notifications": {
       "filePath": "_authenticated/settings/notifications.lazy.tsx",
+      "parent": "/_authenticated/settings"
+    },
+    "/_authenticated/settings/seller-profile": {
+      "filePath": "_authenticated/settings/seller-profile.lazy.tsx",
       "parent": "/_authenticated/settings"
     },
     "/_authenticated/apps/": {

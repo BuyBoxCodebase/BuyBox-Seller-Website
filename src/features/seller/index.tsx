@@ -14,8 +14,8 @@ export default function Admin() {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const agreementRef = useRef<HTMLDivElement>(null);
 
-  const getBrand = async () => {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/brand/get-my-brand`, {
+  const getProfile = async () => {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/seller/profile/me`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
@@ -24,7 +24,7 @@ export default function Admin() {
     });
     const data = await response.json();
    // console.log(data);
-    sessionStorage.setItem('brand', JSON.stringify(data.brand));
+    sessionStorage.setItem('seller', JSON.stringify(data.seller));
   }
 
   const handleScroll = () => {
@@ -38,7 +38,7 @@ export default function Admin() {
 
   const handleAgree = async () => {
     sessionStorage.setItem("isAuthenticated", "true");
-    navigate({ to: '/create-brand' });
+    navigate({ to: '/create-seller-profile' });
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function Admin() {
           setLoading(false);
         } else {
           sessionStorage.setItem("isLoggedIn", "true");
-          await getBrand();
+          await getProfile();
           navigate({ to: '/' });
         }
       } catch (error) {

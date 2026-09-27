@@ -16,7 +16,7 @@ export default function SignIn() {
       window.location.href = '/'
     }
     if (isAuthenticated === 'true') {
-      window.location.href = '/create-brand'
+      window.location.href = '/create-seller-profile'
     }
   }
   , [])

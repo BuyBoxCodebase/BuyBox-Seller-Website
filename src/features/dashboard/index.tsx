@@ -17,13 +17,13 @@ import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
 import { useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import useGetBrand from '@/hooks/brand/useGetBrand'
+import useGetSellerProfile from '@/hooks/seller-profile/useGetSellerProfile'
 import useGetAnalytics from '@/hooks/useGetAnalytics'
 
 export default function Dashboard() {
   const { analytics, loading } = useGetAnalytics();
-  // Call useGetBrand BEFORE any conditional returns
-  useGetBrand();
+  // Call useGetSellerProfile BEFORE any conditional returns
+  useGetSellerProfile();
   const navigate = useNavigate();
   useEffect(() => {
     const token = sessionStorage.getItem('token')

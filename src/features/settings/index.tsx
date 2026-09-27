@@ -60,9 +60,9 @@ const sidebarNavItems = [
     href: '/settings',
   },
   {
-    title: 'Brand',
+    title: 'Seller Profile',
     icon: <IconTool size={18} />,
-    href: '/settings/brand',
+    href: '/settings/seller-profile',
   },
   {
     title: 'Appearance',

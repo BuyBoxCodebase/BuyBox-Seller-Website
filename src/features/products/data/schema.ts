@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const productSchema = z.object({
   id: z.string().nonempty(),
-  brandId: z.string().nonempty(),
+  sellerId: z.string().nonempty(),
   name: z.string().nonempty(),
   description: z.string().nonempty(),
   images: z.array(z.string().nonempty()),
@@ -56,7 +56,7 @@ export type Product = z.infer<typeof productSchema>
 
 // {
 //   "id": "67dc4234ab18c07f17b270cd",
-//   "brandId": "67cb612cbce3fca45d32e8a3",
+//   "sellerId": "67cb612cbce3fca45d32e8a3",
 //   "name": "Pratyush Pal tara koreche",
 //   "description": "B G V G",
 //   "images": [

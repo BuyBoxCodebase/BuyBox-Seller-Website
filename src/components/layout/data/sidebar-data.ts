@@ -148,8 +148,8 @@ export const sidebarData: SidebarData = {
               icon: IconUserCog,
             },
             {
-              title: 'Brand',
-              url: '/settings/brand',
+              title: 'Seller Profile',
+              url: '/settings/seller-profile',
               icon: IconTool,
             },
             {

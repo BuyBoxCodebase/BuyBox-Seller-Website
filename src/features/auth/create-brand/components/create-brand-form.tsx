@@ -41,7 +41,7 @@ export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
     // eslint-disable-next-line no-console
     const token = sessionStorage.getItem('token')
     const response = await fetch(
-        `${baseUrl}/brand/create`,
+        `${baseUrl}/seller/profile/complete`,
         {
             method: 'POST',
             headers: {
@@ -52,8 +52,6 @@ export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
         },
     )
     const data = await response.json()
-   // console.log(data)
-    sessionStorage.setItem('brand', JSON.stringify(data.newBrand))
     sessionStorage.setItem('isLoggedIn', 'true')
     sessionStorage.removeItem('isAuthenticated')
     window.location.href = '/'
