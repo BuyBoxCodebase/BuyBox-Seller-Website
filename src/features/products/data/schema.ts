@@ -9,8 +9,10 @@ export const productSchema = z.object({
   categoryId: z.string().nullable(),
   subCategoryId: z.string().nullable(),
   basePrice: z.number(),
+  brand: z.string().nullish(),
+  modelName: z.string().nullish(),
+  gender: z.enum(['male', 'female', 'unisex']).nullish(),
   attributes: z.unknown(),
-  labels: z.array(z.string()),
   createdAt: z.string().nonempty(),
   updatedAt: z.string().nonempty(),
   category: z.object({

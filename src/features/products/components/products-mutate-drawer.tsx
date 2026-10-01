@@ -26,6 +26,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { HiOutlinePlusCircle, HiOutlineTrash } from 'react-icons/hi'
 import { AddVariantModal, Variant } from './add-variant-modal'
+import { BrandCombobox } from './brand-combobox'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { SubCategory } from '@/features/subcategories/data/schema'
@@ -68,14 +69,102 @@ interface Props {
 
 
 
+const MIN_DESCRIPTION_LENGTH = 100
+
+const GENDERS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'unisex', label: 'Unisex' },
+] as const
+
+// Optional, storage-only product details sent as `attributes`.
+const ATTRIBUTE_SECTIONS = [
+  {
+    title: 'General',
+    fields: [
+      { name: 'attributes.model_generation', label: 'Model generation', placeholder: 'e.g. 40' },
+      { name: 'attributes.style_code', label: 'Style code', placeholder: 'e.g. DV3853-100' },
+      { name: 'attributes.sizing_system', label: 'Sizing system', placeholder: 'e.g. US_Men' },
+    ],
+  },
+  {
+    title: 'Use case',
+    fields: [
+      { name: 'attributes.use_case.primary_activity', label: 'Primary activity', placeholder: 'e.g. Running' },
+      { name: 'attributes.use_case.terrain', label: 'Terrain', placeholder: 'e.g. Road' },
+      { name: 'attributes.use_case.arch_support', label: 'Arch support', placeholder: 'e.g. Neutral' },
+      { name: 'attributes.use_case.cushioning_level', label: 'Cushioning level', placeholder: 'e.g. Medium' },
+    ],
+  },
+  {
+    title: 'Materials',
+    fields: [
+      { name: 'attributes.materials.upper', label: 'Upper', placeholder: 'e.g. Engineered Mesh' },
+      { name: 'attributes.materials.sole', label: 'Sole', placeholder: 'e.g. Rubber' },
+      { name: 'attributes.materials.midsole_tech', label: 'Midsole tech', placeholder: 'e.g. React Foam' },
+    ],
+  },
+] as const
+
+const attributesSchema = z.object({
+  model_generation: z.string().optional(),
+  style_code: z.string().optional(),
+  sizing_system: z.string().optional(),
+  use_case: z.object({
+    primary_activity: z.string().optional(),
+    terrain: z.string().optional(),
+    arch_support: z.string().optional(),
+    cushioning_level: z.string().optional(),
+  }),
+  materials: z.object({
+    upper: z.string().optional(),
+    sole: z.string().optional(),
+    midsole_tech: z.string().optional(),
+  }),
+})
+
+type ProductAttributes = z.infer<typeof attributesSchema>
+
+// Fills every attribute field with a string so the inputs stay controlled.
+function toAttributeFormValues(raw: unknown): ProductAttributes {
+  const obj = (value: unknown) =>
+    (value && typeof value === 'object' ? value : {}) as Record<string, unknown>
+  const str = (value: unknown) => (typeof value === 'string' ? value : '')
+  const attrs = obj(raw)
+  const useCase = obj(attrs.use_case)
+  const materials = obj(attrs.materials)
+  return {
+    model_generation: str(attrs.model_generation),
+    style_code: str(attrs.style_code),
+    sizing_system: str(attrs.sizing_system),
+    use_case: {
+      primary_activity: str(useCase.primary_activity),
+      terrain: str(useCase.terrain),
+      arch_support: str(useCase.arch_support),
+      cushioning_level: str(useCase.cushioning_level),
+    },
+    materials: {
+      upper: str(materials.upper),
+      sole: str(materials.sole),
+      midsole_tech: str(materials.midsole_tech),
+    },
+  }
+}
+
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
-  description: z.string().min(1, 'Description is required.'),
+  description: z
+    .string()
+    .trim()
+    .min(MIN_DESCRIPTION_LENGTH, `Description must be at least ${MIN_DESCRIPTION_LENGTH} characters.`),
+  brand: z.string().trim().min(1, 'Brand is required.'),
+  modelName: z.string().trim().min(1, 'Model name is required.'),
+  gender: z.enum(['male', 'female', 'unisex']),
   price: z.number().min(0, 'Price must be a positive number.'),
   inventory: z.number().min(0, 'Inventory must be a positive number.'),
   categoryId: z.string().min(1, 'Category is required.'),
   subCategoryId: z.string().min(1, 'Sub-category is required.'),
-  labels: z.string().min(1, 'At least one label is required.'),
+  attributes: attributesSchema,
   productId: z.string().optional(),
 })
 
@@ -107,20 +196,26 @@ export function ProductsMutateDrawer({
     defaultValues: currentRow ? {
       name: currentRow.name,
       description: currentRow.description,
+      brand: currentRow.brand ?? '',
+      modelName: currentRow.modelName ?? '',
+      gender: currentRow.gender ?? 'male',
       price: currentRow.basePrice,
       inventory: currentRow.inventory ? currentRow.inventory[0].quantity : 0,
       categoryId: currentRow.categoryId ?? '',
       subCategoryId: currentRow.subCategoryId ?? '',
-      labels: currentRow.labels && currentRow.labels.length > 0 ? currentRow.labels[0] : '',
+      attributes: toAttributeFormValues(currentRow.attributes),
       productId: currentRow.id,
     } : {
       name: '',
       description: '',
+      brand: '',
+      modelName: '',
+      gender: 'male',
       price: 0,
       inventory: 0,
       categoryId: '',
       subCategoryId: '',
-      labels: '',
+      attributes: toAttributeFormValues(undefined),
       productId: '',
     },
   })
@@ -372,6 +467,14 @@ export function ProductsMutateDrawer({
       return
     }
 
+    if (!isUpdate && generatedVariants.length === 0) {
+      toast({
+        title: 'Variant required',
+        description: 'Please add at least one variant for the product.',
+      })
+      return
+    }
+
     const formattedOptions = variants.map(variant => ({
       name: variant.name,
       values: variant.values.map(v => v.value)
@@ -379,7 +482,6 @@ export function ProductsMutateDrawer({
 
     const formData = {
       ...data,
-      labels: data.labels ? [data.labels.trim()].filter(Boolean) : [],
       basePrice: data.price,
       images: uploadedImages,
       options: formattedOptions,
@@ -405,9 +507,14 @@ export function ProductsMutateDrawer({
       })
 
       if (!response.ok) {
+        let errMessage = 'Please try again.'
+        try {
+          const errData = await response.json()
+          errMessage = errData.message || errMessage
+        } catch (e) {}
         toast({
           title: `Failed to ${isUpdate ? 'update' : 'create'} product`,
-          description: 'Please try again.',
+          description: Array.isArray(errMessage) ? errMessage.join(', ') : errMessage,
         })
         return
       }
@@ -486,14 +593,72 @@ export function ProductsMutateDrawer({
               name='description'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
-                  <FormLabel>Description</FormLabel>
+                  <div className='flex justify-between items-center'>
+                    <FormLabel>Description</FormLabel>
+                    <span className='text-xs text-gray-500'>
+                      {field.value.trim().length}/{MIN_DESCRIPTION_LENGTH} min
+                    </span>
+                  </div>
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder='Enter the product description'
-                      rows={3}
+                      placeholder={`Describe the product in at least ${MIN_DESCRIPTION_LENGTH} characters`}
+                      rows={4}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='brand'
+              render={({ field }) => (
+                <FormItem className='space-y-1'>
+                  <FormLabel>Brand</FormLabel>
+                  <FormControl>
+                    <BrandCombobox value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='modelName'
+              render={({ field }) => (
+                <FormItem className='space-y-1'>
+                  <FormLabel>Model Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder='e.g. Air Zoom Pegasus 40' />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='gender'
+              render={({ field }) => (
+                <FormItem className='space-y-1'>
+                  <FormLabel>Gender</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select a gender' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {GENDERS.map(g => (
+                        <SelectItem key={g.value} value={g.value}>
+                          {g.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -553,22 +718,36 @@ export function ProductsMutateDrawer({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name='labels'
-              render={({ field }) => (
-                <FormItem className='space-y-1'>
-                  <FormLabel>Label</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder='e.g. sale'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className='space-y-4 rounded-md border p-4'>
+              <div>
+                <p className='text-sm font-medium'>Additional details</p>
+              </div>
+              {ATTRIBUTE_SECTIONS.map(section => (
+                <div key={section.title} className='space-y-3'>
+                  <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                    {section.title}
+                  </p>
+                  <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
+                    {section.fields.map(attr => (
+                      <FormField
+                        key={attr.name}
+                        control={form.control}
+                        name={attr.name}
+                        render={({ field }) => (
+                          <FormItem className='space-y-1'>
+                            <FormLabel>{attr.label}</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value ?? ''} placeholder={attr.placeholder} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
 
             <FormField
               control={form.control}
