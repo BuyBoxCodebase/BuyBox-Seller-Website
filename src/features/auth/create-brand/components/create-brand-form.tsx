@@ -1,4 +1,4 @@
-import { HTMLAttributes, useState } from 'react'
+import { HTMLAttributes, useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,6 +21,10 @@ const formSchema = z.object({
   name: z.string().nonempty('Name is required'),
   description: z.string().nonempty('Description is required'),
   location: z.string().nonempty('Location is required'),
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(/^\+?[\d\s()-]{8,20}$/, 'Enter your WhatsApp number with country code, e.g. +263 77 123 4567'),
 })
 
 export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
@@ -32,10 +36,26 @@ export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
         name: '',
         description: '',
         location: '',
+        phoneNumber: '',
     },
   })
 
   const baseUrl = import.meta.env.VITE_BASE_URL as string;
+
+  // Sellers who signed up with email already gave a phone number; Google sign-ups didn't.
+  useEffect(() => {
+    const token = sessionStorage.getItem('token')
+    fetch(`${baseUrl}/seller/profile/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success && data.seller?.phoneNumber && !form.getValues('phoneNumber')) {
+          form.setValue('phoneNumber', data.seller.phoneNumber)
+        }
+      })
+      .catch(() => {})
+  }, [baseUrl, form])
   async function onSubmit(formdata: z.infer<typeof formSchema>) {
     setIsLoading(true)
     // eslint-disable-next-line no-console
@@ -103,6 +123,22 @@ export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
                     <FormMessage />
                     </FormItem>
                 )}
+            />
+            <FormField
+              control={form.control}
+              name='phoneNumber'
+              render={({ field }) => (
+                <FormItem className='space-y-1'>
+                  <FormLabel>WhatsApp Number</FormLabel>
+                  <FormControl>
+                    <Input type='tel' placeholder='+263 77 123 4567' {...field} />
+                  </FormControl>
+                  <p className='text-[0.8rem] text-muted-foreground'>
+                    We'll send new order alerts to this number on WhatsApp.
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             <Button className='mt-2' disabled={isLoading}>
               Create

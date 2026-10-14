@@ -1,6 +1,7 @@
 import { Progress } from "@radix-ui/react-progress";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
+import { PENDING_ORDER_ACTION_KEY } from "@/features/order-action";
 
 export default function Admin() {
   const location = useLocation();
@@ -69,6 +70,18 @@ export default function Admin() {
         } else {
           sessionStorage.setItem("isLoggedIn", "true");
           await getProfile();
+          // Signed in from a WhatsApp order button: go back to that order instead of the dashboard.
+          let pendingOrderAction: string | null = null;
+          try {
+            pendingOrderAction = localStorage.getItem(PENDING_ORDER_ACTION_KEY);
+            localStorage.removeItem(PENDING_ORDER_ACTION_KEY);
+          } catch {
+            // Storage unavailable: fall through to the dashboard.
+          }
+          if (pendingOrderAction?.startsWith('/order-action/')) {
+            window.location.replace(pendingOrderAction);
+            return;
+          }
           navigate({ to: '/' });
         }
       } catch (error) {

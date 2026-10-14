@@ -29,6 +29,12 @@ const accountFormSchema = z.object({
   description: z.string().optional(),
   location: z.string().optional(),
   brandPic: z.string().optional(),
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(/^\+?[\d\s()-]{8,20}$/, {
+      message: 'Enter your WhatsApp number with country code, e.g. +263 77 123 4567.',
+    }),
 })
 
 type AccountFormValues = z.infer<typeof accountFormSchema>
@@ -47,6 +53,7 @@ export function AccountForm() {
       description: '',
       location: '',
       brandPic: '',
+      phoneNumber: '',
     },
   })
 
@@ -68,6 +75,7 @@ export function AccountForm() {
             description: data.seller.description || '',
             location: data.seller.location || '',
             brandPic: data.seller.brandPic || '',
+            phoneNumber: data.seller.phoneNumber || '',
           })
           setBrandPic(data.seller.brandPic || '')
           sessionStorage.setItem('seller', JSON.stringify(data.seller))
@@ -95,6 +103,7 @@ export function AccountForm() {
         description: data.description || '',
         location: data.location || '',
         brandPic: brandPic || data.brandPic || '',
+        phoneNumber: data.phoneNumber,
       }
 
       const response = await fetch(`${baseUrl}/seller/profile/update`, {
@@ -243,6 +252,23 @@ export function AccountForm() {
               </FormControl>
               <FormDescription>
                 Physical address or operating city of your store.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='phoneNumber'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>WhatsApp Number</FormLabel>
+              <FormControl>
+                <Input type='tel' placeholder='+263 77 123 4567' {...field} />
+              </FormControl>
+              <FormDescription>
+                New order alerts are sent to this number on WhatsApp. Include the country code.
               </FormDescription>
               <FormMessage />
             </FormItem>

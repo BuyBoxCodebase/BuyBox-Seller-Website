@@ -20,6 +20,7 @@ import { Route as authSellerImport } from './routes/(auth)/seller'
 import { Route as authOtpImport } from './routes/(auth)/otp'
 import { Route as authLandingImport } from './routes/(auth)/landing'
 import { Route as authCreateSellerProfileImport } from './routes/(auth)/create-seller-profile'
+import { Route as OrderActionActionOrderIdImport } from './routes/order-action/$action.$orderId'
 
 // Create Virtual Routes
 
@@ -322,6 +323,12 @@ const AuthenticatedSettingsAppearanceLazyRoute =
     ),
   )
 
+const OrderActionActionOrderIdRoute = OrderActionActionOrderIdImport.update({
+  id: '/order-action/$action/$orderId',
+  path: '/order-action/$action/$orderId',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -437,6 +444,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexImport
       parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/order-action/$action/$orderId': {
+      id: '/order-action/$action/$orderId'
+      path: '/order-action/$action/$orderId'
+      fullPath: '/order-action/$action/$orderId'
+      preLoaderRoute: typeof OrderActionActionOrderIdImport
+      parentRoute: typeof rootRoute
     }
     '/_authenticated/settings/appearance': {
       id: '/_authenticated/settings/appearance'
@@ -607,6 +621,7 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof AuthenticatedIndexRoute
+  '/order-action/$action/$orderId': typeof OrderActionActionOrderIdRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/brand': typeof AuthenticatedSettingsBrandLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -637,6 +652,7 @@ export interface FileRoutesByTo {
   '/500': typeof errors500LazyRoute
   '/503': typeof errors503LazyRoute
   '/': typeof AuthenticatedIndexRoute
+  '/order-action/$action/$orderId': typeof OrderActionActionOrderIdRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/settings/brand': typeof AuthenticatedSettingsBrandLazyRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -670,6 +686,7 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500LazyRoute
   '/(errors)/503': typeof errors503LazyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/order-action/$action/$orderId': typeof OrderActionActionOrderIdRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceLazyRoute
   '/_authenticated/settings/brand': typeof AuthenticatedSettingsBrandLazyRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayLazyRoute
@@ -704,6 +721,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
+    | '/order-action/$action/$orderId'
     | '/settings/appearance'
     | '/settings/brand'
     | '/settings/display'
@@ -733,6 +751,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
+    | '/order-action/$action/$orderId'
     | '/settings/appearance'
     | '/settings/brand'
     | '/settings/display'
@@ -764,6 +783,7 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
+    | '/order-action/$action/$orderId'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/brand'
     | '/_authenticated/settings/display'
@@ -795,6 +815,7 @@ export interface RootRouteChildren {
   errors404LazyRoute: typeof errors404LazyRoute
   errors500LazyRoute: typeof errors500LazyRoute
   errors503LazyRoute: typeof errors503LazyRoute
+  OrderActionActionOrderIdRoute: typeof OrderActionActionOrderIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -812,6 +833,7 @@ const rootRouteChildren: RootRouteChildren = {
   errors404LazyRoute: errors404LazyRoute,
   errors500LazyRoute: errors500LazyRoute,
   errors503LazyRoute: errors503LazyRoute,
+  OrderActionActionOrderIdRoute: OrderActionActionOrderIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -837,7 +859,8 @@ export const routeTree = rootRoute
         "/(errors)/403",
         "/(errors)/404",
         "/(errors)/500",
-        "/(errors)/503"
+        "/(errors)/503",
+        "/order-action/$action/$orderId"
       ]
     },
     "/_authenticated": {
@@ -908,6 +931,9 @@ export const routeTree = rootRoute
     "/_authenticated/": {
       "filePath": "_authenticated/index.tsx",
       "parent": "/_authenticated"
+    },
+    "/order-action/$action/$orderId": {
+      "filePath": "order-action/$action.$orderId.tsx"
     },
     "/_authenticated/settings/appearance": {
       "filePath": "_authenticated/settings/appearance.lazy.tsx",
