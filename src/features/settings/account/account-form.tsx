@@ -15,7 +15,9 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Camera, Loader2 } from 'lucide-react'
+import { StoreLocationInput } from '@/components/store-location-input'
 
 const accountFormSchema = z.object({
   name: z
@@ -27,7 +29,12 @@ const accountFormSchema = z.object({
       message: 'Store name must not be longer than 50 characters.',
     }),
   description: z.string().optional(),
-  location: z.string().optional(),
+  coordinates: z
+    .object({
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+    })
+    .nullable(),
   brandPic: z.string().optional(),
   phoneNumber: z
     .string()
@@ -51,7 +58,7 @@ export function AccountForm() {
     defaultValues: {
       name: '',
       description: '',
-      location: '',
+      coordinates: null,
       brandPic: '',
       phoneNumber: '',
     },
@@ -73,7 +80,7 @@ export function AccountForm() {
           form.reset({
             name: data.seller.name || '',
             description: data.seller.description || '',
-            location: data.seller.location || '',
+            coordinates: data.seller.coordinates ?? null,
             brandPic: data.seller.brandPic || '',
             phoneNumber: data.seller.phoneNumber || '',
           })
@@ -101,7 +108,7 @@ export function AccountForm() {
       const payload = {
         name: data.name,
         description: data.description || '',
-        location: data.location || '',
+        ...(data.coordinates && { coordinates: data.coordinates }),
         brandPic: brandPic || data.brandPic || '',
         phoneNumber: data.phoneNumber,
       }
@@ -171,114 +178,128 @@ export function AccountForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-        <div className='flex flex-col items-center mb-6'>
-          <div className='relative group'>
-            <div className='w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center'>
-              {brandPic ? (
-                <img
-                  src={brandPic}
-                  alt='Store Logo'
-                  className='w-full h-full object-cover'
-                />
-              ) : (
-                <span className='text-xl font-bold text-gray-400'>Logo</span>
+        <Card>
+          <CardHeader>
+            <CardTitle className='text-lg'>Store details</CardTitle>
+            <CardDescription>What buyers see on your store page.</CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-6'>
+            <div className='flex items-center gap-4'>
+              <div className='flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted'>
+                {brandPic ? (
+                  <img src={brandPic} alt='Store logo' className='h-full w-full object-cover' />
+                ) : (
+                  <span className='text-sm font-medium text-muted-foreground'>Logo</span>
+                )}
+              </div>
+              <div className='space-y-1.5'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Camera className='mr-2 h-4 w-4' />
+                  {brandPic ? 'Change logo' : 'Upload logo'}
+                </Button>
+                <p className='text-[0.8rem] text-muted-foreground'>A square image works best.</p>
+              </div>
+              <input
+                type='file'
+                ref={fileInputRef}
+                className='hidden'
+                accept='image/*'
+                onChange={handlePicChange}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Store Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter your store / brand name' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-            <div
-              className='absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer hover:bg-primary/90'
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Camera size={16} />
-            </div>
-            <input
-              type='file'
-              ref={fileInputRef}
-              className='hidden'
-              accept='image/*'
-              onChange={handlePicChange}
             />
-          </div>
-          <FormDescription className='mt-2 text-center'>
-            Click camera icon to upload store logo
-          </FormDescription>
+
+            <FormField
+              control={form.control}
+              name='description'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='Tell buyers about your store and products...'
+                      rows={4}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className='text-lg'>Store location</CardTitle>
+            <CardDescription>
+              Your orders ship from the Treides hub nearest to this point. Until it is set, buyers pay an extra
+              transfer fee on your products.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={form.control}
+              name='coordinates'
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <StoreLocationInput value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className='text-lg'>Order alerts</CardTitle>
+            <CardDescription>New order alerts are sent to this number on WhatsApp.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={form.control}
+              name='phoneNumber'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>WhatsApp Number</FormLabel>
+                  <FormControl>
+                    <Input type='tel' placeholder='+263 77 123 4567' className='sm:max-w-xs' {...field} />
+                  </FormControl>
+                  <FormDescription>Include the country code.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        <div className='flex justify-end'>
+          <Button type='submit' disabled={isLoading}>
+            {isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+            Save changes
+          </Button>
         </div>
-
-        <FormField
-          control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Store Name</FormLabel>
-              <FormControl>
-                <Input placeholder='Enter your store / brand name' {...field} />
-              </FormControl>
-              <FormDescription>
-                This is the public store name displayed to buyers.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='description'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder='Tell buyers about your store and products...'
-                  rows={4}
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Brief description of your store operations or products.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='location'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Location</FormLabel>
-              <FormControl>
-                <Input placeholder='e.g., Harare, Zimbabwe' {...field} />
-              </FormControl>
-              <FormDescription>
-                Physical address or operating city of your store.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='phoneNumber'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>WhatsApp Number</FormLabel>
-              <FormControl>
-                <Input type='tel' placeholder='+263 77 123 4567' {...field} />
-              </FormControl>
-              <FormDescription>
-                New order alerts are sent to this number on WhatsApp. Include the country code.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type='submit' disabled={isLoading}>
-          {isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-          Update Seller Profile
-        </Button>
       </form>
     </Form>
   )

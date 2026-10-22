@@ -14,13 +14,21 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { StoreLocationInput } from '@/components/store-location-input'
 
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>
 
 const formSchema = z.object({
   name: z.string().nonempty('Name is required'),
   description: z.string().nonempty('Description is required'),
-  location: z.string().nonempty('Location is required'),
+  // Decides which hub this store's orders ship from
+  coordinates: z.object(
+    {
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+    },
+    { required_error: 'Set your store location', invalid_type_error: 'Set your store location' }
+  ),
   phoneNumber: z
     .string()
     .trim()
@@ -35,7 +43,7 @@ export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
     defaultValues: {
         name: '',
         description: '',
-        location: '',
+        coordinates: undefined,
         phoneNumber: '',
     },
   })
@@ -113,13 +121,16 @@ export function CreateBrandForm({ className, ...props }: UserAuthFormProps) {
             />
             <FormField
                 control={form.control}
-                name='location'
+                name='coordinates'
                 render={({ field }) => (
                     <FormItem className='space-y-1'>
-                    <FormLabel>Location</FormLabel>
+                    <FormLabel>Store Location</FormLabel>
                     <FormControl>
-                        <Input placeholder='Enter your store location' {...field} />
+                        <StoreLocationInput value={field.value} onChange={field.onChange} />
                     </FormControl>
+                    <p className='text-[0.8rem] text-muted-foreground'>
+                      Used to work out delivery fees from your nearest Treides hub.
+                    </p>
                     <FormMessage />
                     </FormItem>
                 )}
