@@ -1,5 +1,6 @@
 import ContentSection from '../components/content-section'
 import { AccountForm } from './account-form'
+import { PasswordCard } from './password-card'
 
 export default function SettingsAccount() {
   return (
@@ -7,7 +8,10 @@ export default function SettingsAccount() {
       title='Seller Profile'
       desc='Update your seller profile information. Set your profile image, description, and location.'
     >
-      <AccountForm />
+      <div className='space-y-6'>
+        <AccountForm />
+        <PasswordCard />
+      </div>
     </ContentSection>
   )
 }

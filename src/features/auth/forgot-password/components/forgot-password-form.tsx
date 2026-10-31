@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { toast } from '@/hooks/use-toast'
 
 type ForgotFormProps = HTMLAttributes<HTMLDivElement>
 
@@ -25,20 +26,50 @@ const formSchema = z.object({
 
 export function ForgotForm({ className, ...props }: ForgotFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [sentTo, setSentTo] = useState<string | null>(null)
+  const baseUrl = import.meta.env.VITE_BASE_URL as string
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { email: '' },
   })
 
-  function onSubmit() {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-   // console.log(data)
-
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${baseUrl}/seller/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message)
+      }
+      setSentTo(values.email)
+    } catch (e) {
+      toast({
+        title: "Couldn't send the reset link",
+        description: e instanceof Error && e.message ? e.message : 'Please try again in a moment.',
+        variant: 'destructive',
+      })
+    } finally {
       setIsLoading(false)
-    }, 3000)
+    }
+  }
+
+  if (sentTo) {
+    return (
+      <div className={cn('grid gap-3 text-sm', className)} {...props}>
+        <p>
+          If an account exists for <span className='font-medium'>{sentTo}</span>, we've sent a link to set a new
+          password. It expires in 30 minutes.
+        </p>
+        <Button variant='outline' onClick={() => setSentTo(null)}>
+          Use a different email
+        </Button>
+      </div>
+    )
   }
 
   return (
@@ -53,14 +84,14 @@ export function ForgotForm({ className, ...props }: ForgotFormProps) {
                 <FormItem className='space-y-1'>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder='name@example.com' {...field} />
+                    <Input placeholder='name@example.com' autoComplete='email' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button className='mt-2' disabled={isLoading}>
-              Continue
+              {isLoading ? 'Sending...' : 'Send reset link'}
             </Button>
           </div>
         </form>

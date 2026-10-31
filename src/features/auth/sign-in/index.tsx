@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card'
 import AuthLayout from '../auth-layout'
 import { UserAuthForm } from './components/user-auth-form'
 import { useEffect } from 'react'
-// import { Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 export default function SignIn() {
   useEffect(() => {
@@ -26,15 +26,15 @@ export default function SignIn() {
         <div className='flex flex-col space-y-4 text-center mb-6'>
           <h1 className='text-3xl font-bold tracking-tight'>Welcome to BuyBox</h1>
           <p className='text-sm text-muted-foreground'>
-            Please sign in to continue to your account
-            {/* Enter your email and password below to log into your account. */}
-            {/* Don't have an account?{' '}
-             <Link
-                          to='/sign-up'
-                          className='underline underline-offset-4 hover:text-primary'
-                        >
-                          Sign Up
-                        </Link> */}
+            Sign in with your email and password, or continue with Google.
+            <br />
+            Don't have an account?{' '}
+            <Link
+              to='/sign-up'
+              className='underline underline-offset-4 hover:text-primary'
+            >
+              Sign up
+            </Link>
           </p>
         </div>
         <UserAuthForm />

@@ -48,8 +48,10 @@ export function OtpForm({ className, ...props }: activationCodeFormProps) {
         body: JSON.stringify(formData),
       })
       const resdata = await response.json()
-     // console.log(resdata)
-     sessionStorage.setItem('token', resdata.accessToken)
+      if (!response.ok) {
+        throw new Error(resdata.message)
+      }
+      sessionStorage.setItem('token', resdata.accessToken)
       sessionStorage.removeItem('isOtp')
       sessionStorage.removeItem('activationToken')
       sessionStorage.setItem('user', JSON.stringify(resdata.user))
@@ -61,8 +63,9 @@ export function OtpForm({ className, ...props }: activationCodeFormProps) {
     } catch (error) {
      // console.log(error)
       toast({
-        title: 'Wrong OTP',
-        description: 'Wrong activation code',
+        title: 'Wrong code',
+        description: 'That code is wrong or has expired. Check your email and try again.',
+        variant: 'destructive',
       })
       setIsLoading(false)
     }

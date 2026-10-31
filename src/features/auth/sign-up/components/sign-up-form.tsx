@@ -2,7 +2,7 @@ import { HTMLAttributes, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IconBrandFacebook, IconBrandGoogle } from '@tabler/icons-react'
+import { IconBrandGoogle } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -86,8 +86,9 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
     catch(e){
       //console.log(e)
       toast({
-        title: 'Error',
-        description: 'Error occurred',
+        title: "Couldn't create account",
+        description: e instanceof Error && e.message ? e.message : 'Something went wrong. Please try again.',
+        variant: 'destructive',
       })
     }
     //console.log(data)
@@ -187,25 +188,15 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               </div>
             </div>
 
-            <div className='flex items-center gap-2'>
-              <Button
-                variant='outline'
-                className='w-full'
-                type='button'
-                disabled={isLoading}
-                onClick={onGoogleLogin}
-              >
-                <IconBrandGoogle className='h-4 w-4' /> Google
-              </Button>
-              <Button
-                variant='outline'
-                className='w-full'
-                type='button'
-                disabled={isLoading}
-              >
-                <IconBrandFacebook className='h-4 w-4' /> Facebook
-              </Button>
-            </div>
+            <Button
+              variant='outline'
+              className='w-full'
+              type='button'
+              disabled={isLoading}
+              onClick={onGoogleLogin}
+            >
+              <IconBrandGoogle className='h-4 w-4 mr-2' /> Continue with Google
+            </Button>
           </div>
         </form>
       </Form>

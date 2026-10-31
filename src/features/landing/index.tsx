@@ -29,7 +29,7 @@ const Landing: React.FC = () => {
                         <Link to="/sign-in" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">
                             Log in
                         </Link>
-                        <Link to="/sign-in" className="text-xs sm:text-sm font-bold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                        <Link to="/sign-up" className="text-xs sm:text-sm font-bold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all hover:-translate-y-0.5 active:translate-y-0">
                             Start Selling
                         </Link>
                     </div>
@@ -58,7 +58,7 @@ const Landing: React.FC = () => {
                                 Join the fastest-growing marketplace. Get access to millions of customers, powerful analytics, and seamless logistics—all from a single dashboard.
                             </p>
                             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                                <Link to="/sign-in" className="w-full sm:w-auto text-center bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl shadow-orange-500/20 hover:shadow-orange-500/40 transition-all hover:-translate-y-1">
+                                <Link to="/sign-up" className="w-full sm:w-auto text-center bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl shadow-orange-500/20 hover:shadow-orange-500/40 transition-all hover:-translate-y-1">
                                     Create Seller Account
                                 </Link>
                                 <Link to="/sign-in" className="w-full sm:w-auto text-center bg-white hover:bg-slate-50 text-slate-700 px-8 py-4 rounded-full font-bold text-lg shadow-sm border border-slate-200 hover:border-slate-300 transition-all">
