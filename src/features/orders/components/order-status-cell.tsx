@@ -42,6 +42,10 @@ const successToasts: Partial<Record<OrderStatus, { title: string; description: s
     title: 'Marked as out for delivery',
     description: 'The customer can now see this order is on its way.',
   },
+  COMPLETED: {
+    title: 'Order completed',
+    description: 'The customer can now see this order as completed.',
+  },
 }
 
 interface OrderStatusCellProps {

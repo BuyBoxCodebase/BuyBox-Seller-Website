@@ -72,9 +72,11 @@ type SellerAction = { label: string; value: OrderStatus }
 
 // What a seller can move an order to from its current status, mirroring
 // OrderService.SELLER_TRANSITIONS on the backend. Pickup orders go on to
-// READY_FOR_PICKUP; delivery orders to DISPATCHED / OUT_FOR_DELIVERY.
+// READY_FOR_PICKUP; delivery orders to DISPATCHED / OUT_FOR_DELIVERY. Both
+// end at COMPLETED (collected / delivered).
 export function getSellerActions(order: Pick<Order, 'status' | 'fulfillmentType'>): SellerAction[] {
   const isPickup = order.fulfillmentType === 'PICKUP'
+  const delivered: SellerAction = { label: 'Mark Delivered', value: 'COMPLETED' }
   switch (order.status) {
     case 'PENDING':
       return [
@@ -88,8 +90,15 @@ export function getSellerActions(order: Pick<Order, 'status' | 'fulfillmentType'
             { label: 'Dispatched', value: 'DISPATCHED' },
             { label: 'Out for Delivery', value: 'OUT_FOR_DELIVERY' },
           ]
+    case 'READY_FOR_PICKUP':
+      return [{ label: 'Mark Completed', value: 'COMPLETED' }]
     case 'DISPATCHED':
-      return [{ label: 'Out for Delivery', value: 'OUT_FOR_DELIVERY' }]
+      return [
+        { label: 'Out for Delivery', value: 'OUT_FOR_DELIVERY' },
+        delivered,
+      ]
+    case 'OUT_FOR_DELIVERY':
+      return [delivered]
     default:
       return []
   }
