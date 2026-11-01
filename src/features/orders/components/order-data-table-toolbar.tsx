@@ -12,6 +12,9 @@ const orderStatuses = [
   { label: 'Completed', value: 'COMPLETED' },
   { label: 'Cancelled', value: 'CANCELED' },
   { label: 'Out of Stock', value: 'OUT_OF_STOCK' },
+  { label: 'Ready for Pickup', value: 'READY_FOR_PICKUP' },
+  { label: 'Dispatched', value: 'DISPATCHED' },
+  { label: 'Out for Delivery', value: 'OUT_FOR_DELIVERY' },
 ]
 
 const paymentModes = [

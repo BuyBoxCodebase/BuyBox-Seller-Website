@@ -6,7 +6,17 @@ export const orderSchema = z.object({
   email: z.string().email(),
   phoneNumber: z.string().optional(),
   address: z.string().nonempty(),
-  status: z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELED', 'OUT_OF_STOCK']),
+  status: z.enum([
+    'PENDING',
+    'PROCESSING',
+    'COMPLETED',
+    'CANCELED',
+    'OUT_OF_STOCK',
+    'READY_FOR_PICKUP',
+    'DISPATCHED',
+    'OUT_FOR_DELIVERY',
+  ]),
+  fulfillmentType: z.enum(['DELIVERY', 'PICKUP']).optional(),
   totalAmount: z.number().positive(),
   paymentMode: z.enum([
     'CASH_ON_DELIVERY',
@@ -58,12 +68,32 @@ export const orderSchema = z.object({
 export type Order = z.infer<typeof orderSchema>
 export type OrderStatus = Order['status']
 
-// What a seller can set a PENDING order to, mirroring
-// OrderService.SELLER_SETTABLE_STATUSES on the backend.
-export const sellerActions = [
-  { label: 'Accept Order', value: 'PROCESSING' },
-  { label: 'Out of Stock', value: 'OUT_OF_STOCK' },
-] as const satisfies ReadonlyArray<{ label: string; value: OrderStatus }>
+type SellerAction = { label: string; value: OrderStatus }
+
+// What a seller can move an order to from its current status, mirroring
+// OrderService.SELLER_TRANSITIONS on the backend. Pickup orders go on to
+// READY_FOR_PICKUP; delivery orders to DISPATCHED / OUT_FOR_DELIVERY.
+export function getSellerActions(order: Pick<Order, 'status' | 'fulfillmentType'>): SellerAction[] {
+  const isPickup = order.fulfillmentType === 'PICKUP'
+  switch (order.status) {
+    case 'PENDING':
+      return [
+        { label: 'Accept Order', value: 'PROCESSING' },
+        { label: 'Out of Stock', value: 'OUT_OF_STOCK' },
+      ]
+    case 'PROCESSING':
+      return isPickup
+        ? [{ label: 'Ready for Pickup', value: 'READY_FOR_PICKUP' }]
+        : [
+            { label: 'Dispatched', value: 'DISPATCHED' },
+            { label: 'Out for Delivery', value: 'OUT_FOR_DELIVERY' },
+          ]
+    case 'DISPATCHED':
+      return [{ label: 'Out for Delivery', value: 'OUT_FOR_DELIVERY' }]
+    default:
+      return []
+  }
+}
 
 export const statusLabels: Record<OrderStatus, string> = {
   PENDING: 'Pending',
@@ -71,4 +101,7 @@ export const statusLabels: Record<OrderStatus, string> = {
   COMPLETED: 'Completed',
   CANCELED: 'Cancelled',
   OUT_OF_STOCK: 'Out of Stock',
+  READY_FOR_PICKUP: 'Ready for Pickup',
+  DISPATCHED: 'Dispatched',
+  OUT_FOR_DELIVERY: 'Out for Delivery',
 }
