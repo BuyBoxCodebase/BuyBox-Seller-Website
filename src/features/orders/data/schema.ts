@@ -24,6 +24,7 @@ export const orderSchema = z.object({
     'DEBIT_CARD',
     'UPI',
     'NETBANKING',
+    'ECOCASH',
   ]),
   deliveryAgentId: z.string().nullable(),
   createdAt: z.string().datetime(),

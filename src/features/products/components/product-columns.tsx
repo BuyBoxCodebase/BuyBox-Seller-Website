@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, FilterFn } from '@tanstack/react-table'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Product } from '../data/schema'
 import { DataTableColumnHeader } from './product-data-table-column-header'
@@ -6,6 +6,9 @@ import { DataTableRowActions } from './product-data-table-row-actions'
 import ProductModal from './product-modal'
 import { Button } from '@/components/ui/button'
 // import ProductModal from './sub-category-modal'
+
+const matchesSelectedValues: FilterFn<Product> = (row, columnId, selected: string[]) =>
+  selected.includes(row.getValue(columnId))
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -81,6 +84,7 @@ export const columns: ColumnDef<Product>[] = [
     },
   },
   {
+    id: 'category',
     accessorKey: 'category.name', // Use dot notation to access nested property
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Category' />
@@ -95,6 +99,15 @@ export const columns: ColumnDef<Product>[] = [
         </div>
       )
     },
+    filterFn: matchesSelectedValues,
+  },
+  {
+    // Never rendered (see columnVisibility in product-data-table): exists so
+    // the toolbar's Subcategory filter has a column to filter on.
+    id: 'subCategory',
+    accessorFn: (product) => product.subCategory?.name ?? null,
+    filterFn: matchesSelectedValues,
+    enableHiding: false,
   },
   {
     accessorKey: 'subCategories',

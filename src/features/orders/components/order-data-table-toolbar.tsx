@@ -23,6 +23,7 @@ const paymentModes = [
   { label: 'Debit Card', value: 'DEBIT_CARD' },
   { label: 'UPI', value: 'UPI' },
   { label: 'Netbanking', value: 'NETBANKING' },
+  { label: 'EcoCash', value: 'ECOCASH' },
 ]
 
 interface DataTableToolbarProps<TData> {
