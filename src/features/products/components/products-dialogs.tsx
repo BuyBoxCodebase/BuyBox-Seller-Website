@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { toast } from '@/hooks/use-toast'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { ProductsMutateDrawer } from './products-mutate-drawer'
@@ -9,7 +10,17 @@ import { Variant } from '@/hooks/variants/schema'
 import { Product } from '../data/schema'
 
 export function ProductsDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useProduct()
+  const { open, setOpen, currentRow, setCurrentRow, refresh } = useProduct()
+
+  const wasOpen = useRef(false)
+  useEffect(() => {
+    if (open) {
+      wasOpen.current = true
+    } else if (wasOpen.current) {
+      wasOpen.current = false
+      refresh()
+    }
+  }, [open, refresh])
 
   const handleCloseDrawer = () => {
     setOpen(null)

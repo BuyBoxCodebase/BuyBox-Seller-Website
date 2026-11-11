@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Product } from '../data/schema'
 import { Variant } from '@/hooks/variants/schema'
@@ -10,6 +10,8 @@ interface ProductContextType {
   setOpen: (str: ProductDialogType | null) => void
   currentRow: Product | Variant | null
   setCurrentRow: React.Dispatch<React.SetStateAction<Product | Variant | null>>
+  refreshKey: number
+  refresh: () => void
 }
 
 const ProductContext = React.createContext<ProductContextType | null>(null)
@@ -20,9 +22,11 @@ interface Props {
 
 export default function ProductProvider({ children }: Props) {
   const [open, setOpen] = useDialogState<ProductDialogType>(null)
-  const [currentRow, setCurrentRow] = useState<Product |Variant| null>(null)
+  const [currentRow, setCurrentRow] = useState<Product | Variant | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const refresh = useCallback(() => setRefreshKey((k) => k + 1), [])
   return (
-    <ProductContext.Provider value={{ open, setOpen, currentRow, setCurrentRow }}>
+    <ProductContext.Provider value={{ open, setOpen, currentRow, setCurrentRow, refreshKey, refresh }}>
       {children}
     </ProductContext.Provider>
   )

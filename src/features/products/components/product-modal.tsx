@@ -35,8 +35,8 @@ const ProductModal = ({
   children,
   productId,
 }: SubCategoryModalProps) => {
-  const { variants, loading } = useGetProductVariants(productId)
-  const { setOpen, setCurrentRow } = useProduct()
+  const { setOpen, setCurrentRow, refreshKey } = useProduct()
+  const { variants, loading } = useGetProductVariants(productId, refreshKey)
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -54,6 +54,7 @@ const ProductModal = ({
                 <TableHead>Name</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Default</TableHead>
+                <TableHead>Approval</TableHead>
                 <TableHead>Image</TableHead>
                 <TableHead>Inventory</TableHead>
                 <TableHead>Variant Options</TableHead>
@@ -66,6 +67,16 @@ const ProductModal = ({
                   <TableCell className="font-mono text-xs">{variant.name}</TableCell>
                   <TableCell>${variant.price.toFixed(2)}</TableCell>
                   <TableCell>{variant.isDefault ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <span className={`text-sm font-medium ${variant.approvalStatus === 'APPROVED' ? 'text-green-600' : variant.approvalStatus === 'REJECTED' ? 'text-red-600' : 'text-yellow-500'}`}>
+                        {variant.approvalStatus === 'APPROVED' ? 'Approved' : variant.approvalStatus === 'REJECTED' ? 'Rejected' : 'Pending'}
+                      </span>
+                      {variant.approvalStatus === 'REJECTED' && variant.rejectionReason && (
+                        <span className="text-xs text-gray-500 max-w-[200px]">{variant.rejectionReason}</span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     {variant.images && variant.images.length > 0 ? (
                       <div className="h-16 w-16 relative">
@@ -111,12 +122,12 @@ const ProductModal = ({
               ))}
               {loading && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">Loading variants...</TableCell>
+                  <TableCell colSpan={8} className="text-center py-4">Loading variants...</TableCell>
                 </TableRow>
               )}
               {!loading && variants.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">No variants found</TableCell>
+                  <TableCell colSpan={8} className="text-center py-4">No variants found</TableCell>
                 </TableRow>
               )}
             </TableBody>

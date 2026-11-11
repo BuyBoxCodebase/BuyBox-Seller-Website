@@ -6,21 +6,30 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ProductsDataTable } from './components/product-data-table'
 import { ProductsPrimaryButtons } from './components/products-primary-buttons'
-import TasksProvider from './context/products-context'
+import TasksProvider, { useProduct } from './context/products-context'
 import { columns } from './components/product-columns'  // Import your column definitions
 import useGetProducts from '@/hooks/products/useGetProducts'
 import { ProductsDialogs } from './components/products-dialogs'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 export default function Products() {
-  const { products, loading } = useGetProducts()
+  return (
+    <TasksProvider>
+      <ProductsContent />
+    </TasksProvider>
+  )
+}
+
+function ProductsContent() {
+  const { refreshKey } = useProduct()
+  const { products, loading } = useGetProducts(refreshKey)
   const navigate = useNavigate();
   useEffect(() => {
     const token = sessionStorage.getItem('token')
     token == null ? navigate({ to: '/landing' }) : null
   }, [navigate])
   return (
-    <TasksProvider>
+    <>
       <Header fixed>
         <Search />
         <div className='ml-auto flex items-center space-x-4'>
@@ -44,6 +53,6 @@ export default function Products() {
         </div>
       </Main>
       <ProductsDialogs />
-    </TasksProvider>
+    </>
   )
 }

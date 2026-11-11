@@ -4,17 +4,16 @@ import {  Variant } from './schema'
 
 
 
-export default function useGetProductVariants(id: string) {
+export default function useGetProductVariants(id: string, refreshKey = 0) {
   const [variants, setVariants] = useState<Variant[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchCategories = async (id:string) => {
-      setLoading(true)
       try {
         // console.log('here')
         const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/product/variants/${id}`,
+          `${import.meta.env.VITE_BASE_URL}/product/seller/variants/${id}`,
           {
             method: 'GET',
             headers: {
@@ -35,7 +34,7 @@ export default function useGetProductVariants(id: string) {
     }
 
     fetchCategories(id)
-  }, [])
+  }, [id, refreshKey])
 
   return { variants, loading }
 }

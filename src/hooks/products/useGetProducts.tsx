@@ -2,52 +2,51 @@ import { Product } from '@/features/products/data/schema'
 import { useEffect, useState } from 'react'
 
 
-export default function useGetProducts() {
+export default function useGetProducts(refreshKey = 0) {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const getProducts = async () => {
-        //const token = localStorage.getItem("token");
-        //const user = JSON.parse(sessionStorage.getItem("user") || '{}');
-        const token = sessionStorage.getItem("token");
-        setLoading(true);
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_BASE_URL}/product/get-seller-products`,
-            // `${baseUrl}/product/store?storeName=${storename}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json; charset=UTF-8",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          
-    
-          if (response.status === 200) {
-            const data = await response.json();
-            //console.log('FROM GET PRODUCTS:', data);
-            setProducts(data.products);
-    
-            //console.log(products);
-            // setTotalPages(Math.ceil(data.total / rowsPerPage));
-            
-          } else {
-            //console.error("Error fetching products");
+      //const token = localStorage.getItem("token");
+      //const user = JSON.parse(sessionStorage.getItem("user") || '{}');
+      const token = sessionStorage.getItem("token");
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/product/get-seller-products`,
+          // `${baseUrl}/product/store?storeName=${storename}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json; charset=UTF-8",
+              Authorization: `Bearer ${token}`,
+            },
           }
-        } catch (error) {
-          //console.error("Error fetching products:", error);
-          
-    
-        } finally {
-          setLoading(false);
+        );
+
+
+        if (response.status === 200) {
+          const data = await response.json();
+          //console.log('FROM GET PRODUCTS:', data);
+          setProducts(data.products);
+
+          //console.log(products);
+          // setTotalPages(Math.ceil(data.total / rowsPerPage));
+
+        } else {
+          //console.error("Error fetching products");
         }
+      } catch (error) {
+        //console.error("Error fetching products:", error);
+
+
+      } finally {
+        setLoading(false);
       }
+    }
 
     getProducts()
-  }, [])
+  }, [refreshKey])
 
   return { products, loading }
 }

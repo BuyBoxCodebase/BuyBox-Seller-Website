@@ -25,6 +25,8 @@ export const variantSchema = z.object({
     description: z.string().optional(),
     price: z.number(),
     isDefault: z.boolean(),
+    approvalStatus: z.enum(['PENDING', 'APPROVED', 'REJECTED']).default('PENDING'),
+    rejectionReason: z.string().nullable().optional(),
     images: z.array(z.string().nonempty()),
     createdAt: z.string().nonempty(),
     updatedAt: z.string().nonempty(),
