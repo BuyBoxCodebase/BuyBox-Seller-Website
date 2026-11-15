@@ -9,6 +9,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { useAuthStore } from '@/stores/authStore'
 import { handleServerError } from '@/utils/handle-server-error'
 import { toast } from '@/hooks/use-toast'
+import { installConsoleCapture, reportClientError } from '@/lib/client-error-reporter'
 import { FontProvider } from './context/font-context'
 import { ThemeProvider } from './context/theme-context'
 import './index.css'
@@ -16,6 +17,8 @@ import './index.css'
 import { routeTree } from './routeTree.gen'
 import { CategoryProvider } from './context/category/category-context'
 import { SubCategoryProvider } from './context/category/subcategory-context'
+
+installConsoleCapture()
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,6 +66,7 @@ const queryClient = new QueryClient({
           router.navigate({ to: '/sign-in', search: { redirect } })
         }
         if (error.response?.status === 500) {
+          reportClientError({ error, trigger: 'api-500' })
           toast({
             variant: 'destructive',
             title: 'Internal Server Error!',

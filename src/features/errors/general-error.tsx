@@ -1,17 +1,27 @@
+import { useEffect } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
+import { reportClientError } from '@/lib/client-error-reporter'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 interface GeneralErrorProps extends React.HTMLAttributes<HTMLDivElement> {
   minimal?: boolean
+  // Passed by the router's errorComponent when a page crashed while rendering.
+  error?: unknown
 }
 
 export default function GeneralError({
   className,
   minimal = false,
+  error,
 }: GeneralErrorProps) {
   const navigate = useNavigate()
   const { history } = useRouter()
+
+  useEffect(() => {
+    if (error) reportClientError({ error, trigger: 'render-error' })
+  }, [error])
+
   return (
     <div className={cn('h-svh w-full', className)}>
       <div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
