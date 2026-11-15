@@ -28,7 +28,8 @@ export default function useGetProducts(refreshKey = 0) {
         if (response.status === 200) {
           const data = await response.json();
           //console.log('FROM GET PRODUCTS:', data);
-          setProducts(data.products);
+          // An unexpected body must not turn the list into undefined (the table would crash).
+          setProducts(Array.isArray(data?.products) ? data.products : []);
 
           //console.log(products);
           // setTotalPages(Math.ceil(data.total / rowsPerPage));

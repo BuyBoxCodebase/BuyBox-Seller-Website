@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -36,9 +36,11 @@ const ProductModal = ({
   productId,
 }: SubCategoryModalProps) => {
   const { setOpen, setCurrentRow, refreshKey } = useProduct()
-  const { variants, loading } = useGetProductVariants(productId, refreshKey)
+  const [isOpen, setIsOpen] = useState(false)
+  // Variants are fetched only once the dialog is opened, not for every row on page load.
+  const { variants, loading } = useGetProductVariants(productId, refreshKey, isOpen)
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="w-full max-w-4xl p-4">
         <DialogHeader>

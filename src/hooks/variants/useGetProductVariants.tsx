@@ -1,40 +1,50 @@
-
 import { useEffect, useState } from 'react'
-import {  Variant } from './schema'
+import { Variant } from './schema'
 
-
-
-export default function useGetProductVariants(id: string, refreshKey = 0) {
+// Only fetches while `enabled` is true (the variants dialog is open), so the product table
+// doesn't fire one request per row on load. `variants` is always an array: a 404 (product
+// deleted), an error body or a network failure all end up as an empty list.
+export default function useGetProductVariants(
+  id: string,
+  refreshKey = 0,
+  enabled = true
+) {
   const [variants, setVariants] = useState<Variant[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const fetchCategories = async (id:string) => {
+    if (!enabled) return
+
+    let cancelled = false
+    const fetchVariants = async () => {
+      setLoading(true)
       try {
-        // console.log('here')
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/product/seller/variants/${id}`,
           {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
             },
           }
         )
-        const data = await response.json()
-        // console.log(data)
-        setVariants(data.variants)
-      } catch (err) {
-        //console.error('Error fetching products:', err)
-        setVariants([])
+        const data = response.ok ? await response.json() : null
+        if (!cancelled) {
+          setVariants(Array.isArray(data?.variants) ? data.variants : [])
+        }
+      } catch {
+        if (!cancelled) setVariants([])
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
-    fetchCategories(id)
-  }, [id, refreshKey])
+    fetchVariants()
+    return () => {
+      cancelled = true
+    }
+  }, [id, refreshKey, enabled])
 
   return { variants, loading }
 }
