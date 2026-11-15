@@ -100,7 +100,7 @@ export default function Admin() {
   if (showAgreement) {
     return (
       <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-4">BuyBox Seller Agreement</h1>
+        <h1 className="text-2xl font-bold mb-4">Treides Seller Partnership Agreement</h1>
         <p className="mb-4">Please read and agree to the following terms before continuing:</p>
         
         <div 
@@ -108,102 +108,144 @@ export default function Admin() {
           onScroll={handleScroll}
           className="border p-4 mb-6 h-96 overflow-y-auto bg-gray-50"
         >
-          <h2 className="text-xl font-bold mb-4">BUYBOX SELLER AGREEMENT</h2>
-          <p className="mb-4">This BuyBox Seller Agreement ("Agreement") is made and entered into by and between BuyBox
-          ("BuyBox," "we," "us," or "our") and you ("Seller," "you," or "your"). By registering as a seller on
-          BuyBox and listing products for sale, you agree to comply with the terms outlined in this
-          Agreement.</p>
-          
-          <h3 className="text-lg font-bold mt-6 mb-2">1. DEFINITIONS</h3>
+          <h2 className="text-xl font-bold mb-4">TREIDES SELLER PARTNERSHIP AGREEMENT</h2>
+          <p className="mb-4">Welcome to Treides!</p>
+          <p className="mb-4">Treides is a marketplace that connects customers with independent sellers, making online shopping easier, safer and more convenient.</p>
+          <p className="mb-4">By joining Treides as a seller, you agree to the following terms and responsibilities.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">1. PRODUCT LISTINGS AND PRESENTATION</h3>
+          <p className="mb-2">As a seller on Treides, you are responsible for ensuring that all products listed on the platform are accurately represented.</p>
+          <p className="mb-2">You agree to:</p>
           <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● "Platform" refers to BuyBox's online marketplace.</li>
-            <li className="mb-1">● "Seller" refers to any individual or business that lists and sells products through BuyBox.</li>
-            <li className="mb-1">● "Buyer" refers to any individual or business purchasing products through BuyBox.</li>
-            <li className="mb-1">● "Commission" refers to the percentage fee BuyBox collects from each sale.</li>
-            <li className="mb-1">● "Fulfillment" refers to the process of packing and delivering products to Buyers.</li>
-            <li className="mb-1">● "Intellectual Property" refers to trademarks, copyrights, and other proprietary rights.</li>
+            <li className="mb-1">Upload clear, high-quality images of the actual products you are selling.</li>
+            <li className="mb-1">Use clean, attractive and appropriate backgrounds when taking product photographs.</li>
+            <li className="mb-1">Ensure images have good lighting and clearly showcase the product.</li>
+            <li className="mb-1">Provide accurate product descriptions, sizes, colours and prices.</li>
+            <li className="mb-1">Ensure that uploaded images properly represent the product.</li>
+          </ul>
+          <p className="mb-4">Treides reserves the right to reject or remove product images and listings that do not meet its presentation standards or adequately represent the product.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">2. PRODUCT AVAILABILITY</h3>
+          <p className="mb-2">Sellers are responsible for keeping their product listings and stock information up to date.</p>
+          <p className="mb-2">You agree to:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li className="mb-1">Update product availability promptly.</li>
+            <li className="mb-1">Only accept orders for products you can supply.</li>
+            <li className="mb-1">Notify Treides immediately if an ordered product becomes unavailable.</li>
+            <li className="mb-1">Ensure that customers receive the exact product they ordered.</li>
           </ul>
 
-          <h3 className="text-lg font-bold mt-6 mb-2">2. SELLER REGISTRATION & ACCOUNT</h3>
+          <h3 className="text-lg font-bold mt-6 mb-2">3. CUSTOMER REQUESTS AND COMMUNICATION</h3>
+          <p className="mb-2">When a customer requests a product or makes an enquiry through Treides, sellers are expected to respond as quickly as possible.</p>
+          <p className="mb-2">You agree to:</p>
           <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● You must register with BuyBox and provide accurate business and financial information.</li>
-            <li className="mb-1">● You are responsible for maintaining the security of your account.</li>
-            <li className="mb-1">● BuyBox reserves the right to approve or reject any seller registration.</li>
+            <li className="mb-1">Respond promptly to customer requests.</li>
+            <li className="mb-1">Confirm product availability without unnecessary delays.</li>
+            <li className="mb-1">Provide accurate information when additional details are requested.</li>
+            <li className="mb-1">Communicate any issues that may affect order fulfilment.</li>
+          </ul>
+          <p className="mb-4">Timely responses help Treides provide customers with a better shopping experience.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">4. PRODUCT PACKAGING</h3>
+          <p className="mb-2">The seller is responsible for properly packaging products before handing them over for delivery.</p>
+          <p className="mb-2">You agree to:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li className="mb-1">Ensure products are clean and in good condition.</li>
+            <li className="mb-1">Package products securely to prevent damage during transportation.</li>
+            <li className="mb-1">Have orders properly prepared before the scheduled collection.</li>
+            <li className="mb-1">Include all accessories or components advertised with the product.</li>
+          </ul>
+          <p className="mb-4">Treides is responsible for coordinating product collection, transportation and delivery to customers. Sellers remain responsible for damage resulting from inadequate packaging before handover.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">5. RETURNS AND CUSTOMER SATISFACTION</h3>
+          <p className="mb-2">Treides operates a 24-hour customer return policy.</p>
+          <p className="mb-2">By joining Treides, you agree to accept eligible product returns within <strong>24 hours after the customer receives the product</strong> if the customer is not satisfied.</p>
+          <p className="mb-2">This includes situations where:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li className="mb-1">The product received is different from what was ordered.</li>
+            <li className="mb-1">The product does not match its advertised description or images.</li>
+            <li className="mb-1">The product has defects or damage attributable to the seller.</li>
+            <li className="mb-1">The customer is dissatisfied and requests a return within the agreed period.</li>
+          </ul>
+          <p className="mb-4">Returned products should be in their original condition, except where damage or defects are the reason for the return. Treides will coordinate the return process and communicate with both the customer and seller. Return costs and responsibility will depend on the reason for the return and Treides' applicable return policies.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">6. PAYMENTS AND SELLER SETTLEMENTS</h3>
+          <p className="mb-2">Treides is responsible for collecting and handling payments made by customers through the platform. To protect sellers against fake customers and fraudulent orders, customers must pay before their products are dispatched.</p>
+          <p className="mb-2">Sellers agree that:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li className="mb-1">Customer payments are handled through Treides.</li>
+            <li className="mb-1">Sellers should not independently collect payment for orders processed through Treides without authorization.</li>
+            <li className="mb-1">Seller payments are released after the customer confirms satisfaction with the product.</li>
+            <li className="mb-1">If the customer does not raise a complaint or return request within the 24-hour return period, the order may be considered accepted and eligible for seller payment.</li>
+            <li className="mb-1">Any applicable Treides commissions or agreed fees will be deducted before settlement.</li>
+          </ul>
+          <p className="mb-4">Treides will coordinate the payment and settlement process.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">7. DELIVERY RESPONSIBILITIES</h3>
+          <p className="mb-2">Treides is responsible for managing the delivery process, including:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li className="mb-1">Coordinating product collection from sellers.</li>
+            <li className="mb-1">Arranging transportation and delivery.</li>
+            <li className="mb-1">Managing customer delivery information.</li>
+            <li className="mb-1">Providing relevant delivery updates.</li>
+            <li className="mb-1">Handling customer payments.</li>
+          </ul>
+          <p className="mb-4">The seller is responsible for ensuring that products are properly packaged and ready for collection.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">8. BUSINESS LOCATION INFORMATION</h3>
+          <p className="mb-2">Sellers are required to provide accurate store or business location information when registering on Treides.</p>
+          <p className="mb-2">This information helps Treides:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li className="mb-1">Connect customers with sellers closest to them.</li>
+            <li className="mb-1">Improve geographical product discovery.</li>
+            <li className="mb-1">Identify convenient sellers for customer orders.</li>
+            <li className="mb-1">Provide faster and more efficient delivery options.</li>
+            <li className="mb-1">Improve order fulfilment and logistics.</li>
+          </ul>
+          <p className="mb-4">Sellers agree to keep their business location information accurate and notify Treides of any changes.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">9. MARKETPLACE CONDUCT</h3>
+          <p className="mb-2">Sellers agree to operate honestly and professionally on Treides.</p>
+          <p className="mb-2">You must not:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li className="mb-1">Upload misleading product images or descriptions.</li>
+            <li className="mb-1">Advertise products you cannot supply.</li>
+            <li className="mb-1">Deliberately misrepresent product quality or authenticity.</li>
+            <li className="mb-1">Repeatedly accept orders that you cannot fulfil.</li>
+            <li className="mb-1">Engage in fraudulent activities.</li>
+            <li className="mb-1">Attempt to bypass Treides' payment or order processes for transactions originating through the platform.</li>
+          </ul>
+          <p className="mb-4">Treides reserves the right to investigate complaints and take appropriate action against sellers who violate marketplace policies or compromise customer trust.</p>
+
+          <h3 className="text-lg font-bold mt-6 mb-2">10. TREIDES' RESPONSIBILITIES</h3>
+          <p className="mb-2">Treides agrees to provide sellers with a platform and supporting services to facilitate online sales.</p>
+          <p className="mb-2">Treides is responsible for:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li className="mb-1">Providing the online marketplace.</li>
+            <li className="mb-1">Connecting sellers with potential customers.</li>
+            <li className="mb-1">Managing customer payments.</li>
+            <li className="mb-1">Coordinating product collection and delivery.</li>
+            <li className="mb-1">Protecting sellers against fake customers by requiring payment before dispatch.</li>
+            <li className="mb-1">Facilitating customer communication and eligible returns.</li>
+            <li className="mb-1">Supporting a trustworthy and reliable marketplace environment.</li>
           </ul>
 
-          <h3 className="text-lg font-bold mt-6 mb-2">3. LISTING & SELLING PRODUCTS</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● You must provide accurate product descriptions, pricing, and images.</li>
-            <li className="mb-1">● All listings must comply with applicable laws and BuyBox's policies.</li>
-            <li className="mb-1">● You are responsible for inventory management and ensuring products are in stock.</li>
-          </ul>
+          <h3 className="text-lg font-bold mt-6 mb-2">11. SUSPENSION AND TERMINATION</h3>
+          <p className="mb-4">Treides reserves the right to suspend or terminate a seller's access to the marketplace if the seller repeatedly violates this agreement, engages in fraudulent activity or consistently fails to fulfil customer orders. Outstanding orders, returns, refunds and payments must still be resolved in accordance with the applicable marketplace policies.</p>
 
-          <h3 className="text-lg font-bold mt-6 mb-2">4. COMMISSION & FEES</h3>
+          <h3 className="text-lg font-bold mt-6 mb-2">12. ACCEPTANCE OF THIS AGREEMENT</h3>
+          <p className="mb-2">By clicking Agree and continuing with seller registration, you confirm that:</p>
           <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● BuyBox will collect a commission on each sale, which will be deducted before payouts.</li>
-            <li className="mb-1">● The commission percentage will be communicated upon registration and may be updated with prior notice.</li>
-            <li className="mb-1">● Additional service fees may apply for fulfillment, advertising, or other services.</li>
+            <li className="mb-1">You have read and understood this Seller Partnership Agreement.</li>
+            <li className="mb-1">You agree to comply with the responsibilities outlined in this document.</li>
+            <li className="mb-1">You accept the 24-hour customer return policy.</li>
+            <li className="mb-1">You understand that Treides manages customer payments and delivery.</li>
+            <li className="mb-1">You agree that seller payments are released after customer satisfaction or expiry of the applicable return period without a reported issue.</li>
+            <li className="mb-1">You agree to provide accurate product, stock and business location information.</li>
           </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">5. ORDER PROCESSING & FULFILLMENT</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● You must process and ship orders within the agreed-upon timeframe.</li>
-            <li className="mb-1">● BuyBox may facilitate deliveries through independent delivery agents.</li>
-            <li className="mb-1">● You are responsible for packaging and ensuring safe delivery of products unless using BuyBox's fulfillment services.</li>
-          </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">6. RETURNS, REFUNDS & CUSTOMER SERVICE</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● You must comply with BuyBox's return and refund policy.</li>
-            <li className="mb-1">● You are responsible for handling customer inquiries and complaints regarding your products.</li>
-            <li className="mb-1">● BuyBox reserves the right to issue refunds on your behalf if necessary.</li>
-          </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">7. PAYMENTS & SETTLEMENTS</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● Payouts will be made to your registered bank or mobile wallet account after deducting commissions and fees.</li>
-            <li className="mb-1">● Payment processing timelines will be communicated and may vary based on order completion and returns.</li>
-            <li className="mb-1">● BuyBox reserves the right to withhold payments for investigations related to fraud or policy violations.</li>
-          </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">8. PROHIBITED PRODUCTS & ACTIVITIES</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● You may not sell counterfeit, illegal, or restricted items.</li>
-            <li className="mb-1">● You may not engage in fraudulent or deceptive practices.</li>
-            <li className="mb-1">● Violation of these policies may result in account suspension or termination.</li>
-          </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">9. INTELLECTUAL PROPERTY & BRAND USAGE</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● You grant BuyBox a non-exclusive, royalty-free license to use your product images and descriptions for promotional purposes.</li>
-            <li className="mb-1">● You may not use BuyBox's name, logo, or branding without prior written consent.</li>
-          </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">10. TERMINATION & SUSPENSION</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● BuyBox may suspend or terminate your account if you violate this Agreement or applicable laws.</li>
-            <li className="mb-1">● You may close your account at any time, but outstanding orders must still be fulfilled.</li>
-            <li className="mb-1">● BuyBox may withhold payments if fraud, policy violations, or unresolved disputes exist.</li>
-          </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">11. LIABILITY & INDEMNIFICATION</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● You are solely responsible for your products, including safety, compliance, and warranties.</li>
-            <li className="mb-1">● You agree to indemnify BuyBox against any claims, damages, or losses arising from your products or actions.</li>
-          </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">12. CHANGES TO THIS AGREEMENT</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● BuyBox may update this Agreement at any time with notice. Continued use of the platform constitutes acceptance of changes.</li>
-          </ul>
-
-          <h3 className="text-lg font-bold mt-6 mb-2">13. GOVERNING LAW & DISPUTE RESOLUTION</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li className="mb-1">● This Agreement is governed by the laws of Zimbabwe.</li>
-            <li className="mb-1">● Disputes will be resolved through negotiation, mediation, or arbitration as required by BuyBox.</li>
-          </ul>
-
-          <p className="mt-6 font-semibold">By registering as a seller and listing products on BuyBox, you acknowledge that you have read, understood, and agreed to these terms.</p>
+          <p className="mb-4">This agreement forms the basis of your partnership with Treides.</p>
+          <p className="mt-6 font-semibold">Thank you for choosing to sell on Treides.</p>
+          <p className="mt-2 italic">Together, we are making online shopping in Zimbabwe less intimidating.</p>
         </div>
         
         <div className="flex justify-between items-center">
