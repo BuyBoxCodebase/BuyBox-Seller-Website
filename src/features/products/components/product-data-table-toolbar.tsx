@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react'
-import { Cross2Icon } from '@radix-ui/react-icons'
+import { useEffect, useMemo, useState } from 'react'
+import { Cross2Icon, TrashIcon } from '@radix-ui/react-icons'
 import { Table } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -7,6 +7,11 @@ import { DataTableViewOptions } from './product-data-table-view-options'
 import { priorities, statuses } from '../data/data'
 import { Product } from '../data/schema'
 import { DataTableFacetedFilter } from './product-data-table-faceted-filter'
+import { ConfirmDialog } from '@/components/confirm-dialog'
+import { toast } from '@/hooks/use-toast'
+import { useProduct } from '../context/products-context'
+
+const MAX_PER_REQUEST = 200 // the backend rejects more than 200 ids at once
 
 interface DataTableToolbarProps<TData extends Product> {
   table: Table<TData>
@@ -21,6 +26,54 @@ export function DataTableToolbar<TData extends Product>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
+  const { refresh } = useProduct()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const selectedRows = table.getSelectedRowModel().rows
+  const selectedCount = selectedRows.length
+
+  const handleBulkDelete = async () => {
+    const ids = selectedRows.map((row) => row.original.id)
+    setDeleting(true)
+    let deleted = 0
+    let skipped = 0
+    try {
+      for (let i = 0; i < ids.length; i += MAX_PER_REQUEST) {
+        const res = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/product/delete-many`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+            },
+            body: JSON.stringify({ productIds: ids.slice(i, i + MAX_PER_REQUEST) }),
+          }
+        )
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok || data.success === false) {
+          throw new Error(data.message || 'Failed to delete products')
+        }
+        deleted += data.deletedIds?.length ?? 0
+        skipped += data.skippedIds?.length ?? 0
+      }
+      toast({
+        title: `${deleted} product${deleted === 1 ? '' : 's'} deleted`,
+        description: skipped ? `${skipped} could not be deleted.` : undefined,
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Could not delete products',
+        description: error instanceof Error ? error.message : undefined,
+      })
+    } finally {
+      setDeleting(false)
+      setConfirmOpen(false)
+      table.resetRowSelection()
+      refresh()
+    }
+  }
 
   const categoryColumn = table.getColumn('category')
   const subCategoryColumn = table.getColumn('subCategory')
@@ -115,7 +168,38 @@ export function DataTableToolbar<TData extends Product>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <div className='flex items-center gap-x-2'>
+        {selectedCount > 0 && (
+          <Button
+            variant='destructive'
+            size='sm'
+            className='h-8'
+            onClick={() => setConfirmOpen(true)}
+          >
+            <TrashIcon className='mr-2 h-4 w-4' />
+            Delete selected ({selectedCount})
+          </Button>
+        )}
+        <DataTableViewOptions table={table} />
+      </div>
+      <ConfirmDialog
+        destructive
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        isLoading={deleting}
+        handleConfirm={handleBulkDelete}
+        className='max-w-md'
+        title={`Delete ${selectedCount} product${selectedCount === 1 ? '' : 's'}?`}
+        desc={
+          <>
+            You are about to permanently delete {selectedCount} selected
+            product{selectedCount === 1 ? '' : 's'}, including their variants
+            and inventory. <br />
+            This action cannot be undone.
+          </>
+        }
+        confirmText='Delete'
+      />
     </div>
   )
 }

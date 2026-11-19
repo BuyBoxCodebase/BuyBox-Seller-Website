@@ -41,13 +41,6 @@ const Landing: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-6 pt-12 lg:pt-24 pb-20">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-8">
                         <div className="lg:w-[55%] text-center lg:text-left flex flex-col items-center lg:items-start">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100/50 border border-orange-200/50 text-orange-700 font-medium text-sm mb-6 shadow-sm">
-                                <span className="relative flex h-2 w-2">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-                                </span>
-                                Now accepting new sellers
-                            </div>
                             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-6">
                                 Sell smarter, <br className="hidden sm:block" />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-400">
@@ -62,7 +55,7 @@ const Landing: React.FC = () => {
                                     Create Seller Account
                                 </Link>
                                 <Link to="/sign-in" className="w-full sm:w-auto text-center bg-white hover:bg-slate-50 text-slate-700 px-8 py-4 rounded-full font-bold text-lg shadow-sm border border-slate-200 hover:border-slate-300 transition-all">
-                                    View Pricing
+                                    Log in
                                 </Link>
                             </div>
                             
