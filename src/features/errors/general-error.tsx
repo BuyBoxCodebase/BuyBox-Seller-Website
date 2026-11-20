@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { reportClientError } from '@/lib/client-error-reporter'
+import { reloadIfStaleChunk } from '@/lib/stale-chunk'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -19,7 +20,10 @@ export default function GeneralError({
   const { history } = useRouter()
 
   useEffect(() => {
-    if (error) reportClientError({ error, trigger: 'render-error' })
+    if (error) {
+      if (reloadIfStaleChunk(error)) return // old tab after a deploy: reload to get the new build
+      reportClientError({ error, trigger: 'render-error' })
+    }
   }, [error])
 
   return (

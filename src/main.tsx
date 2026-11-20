@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { handleServerError } from '@/utils/handle-server-error'
 import { toast } from '@/hooks/use-toast'
 import { installConsoleCapture, reportClientError } from '@/lib/client-error-reporter'
+import { reloadIfStaleChunk } from '@/lib/stale-chunk'
 import { FontProvider } from './context/font-context'
 import { ThemeProvider } from './context/theme-context'
 import './index.css'
@@ -19,6 +20,11 @@ import { CategoryProvider } from './context/category/category-context'
 import { SubCategoryProvider } from './context/category/subcategory-context'
 
 installConsoleCapture()
+
+// Vite fires this when a lazy file is missing after a deploy; reload once to pick up the new build
+window.addEventListener('vite:preloadError', (event) => {
+  if (reloadIfStaleChunk(new Error('Failed to fetch dynamically imported module'))) event.preventDefault()
+})
 
 const queryClient = new QueryClient({
   defaultOptions: {

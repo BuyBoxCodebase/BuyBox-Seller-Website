@@ -92,10 +92,10 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>
-                        ${analytics?.totalRevenue.amount || '0.00'}
+                        ${analytics?.totalRevenue?.amount || '0.00'}
                       </div>
                       <p className='text-xs text-muted-foreground'>
-                        {analytics?.totalRevenue.change || 'No change'}
+                        {analytics?.totalRevenue?.change || 'No change'}
                       </p>
                     </CardContent>
                   </Card>
@@ -121,10 +121,10 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>
-                        +{analytics?.subscriptions.count || '0'}
+                        +{analytics?.subscriptions?.count || '0'}
                       </div>
                       <p className='text-xs text-muted-foreground'>
-                        {analytics?.subscriptions.change || 'No change'}
+                        {analytics?.subscriptions?.change || 'No change'}
                       </p>
                     </CardContent>
                   </Card>
@@ -147,10 +147,10 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>
-                        +{analytics?.sales.count || '0'}
+                        +{analytics?.sales?.count || '0'}
                       </div>
                       <p className='text-xs text-muted-foreground'>
-                        {analytics?.sales.change || 'No change'}
+                        {analytics?.sales?.change || 'No change'}
                       </p>
                     </CardContent>
                   </Card>
@@ -174,10 +174,10 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className='text-2xl font-bold'>
-                        {analytics?.activeNow.count || '0'}
+                        {analytics?.activeNow?.count || '0'}
                       </div>
                       <p className='text-xs text-muted-foreground'>
-                        {analytics?.activeNow.change || 'No change'}
+                        {analytics?.activeNow?.change || 'No change'}
                       </p>
                     </CardContent>
                   </Card>
@@ -195,11 +195,11 @@ export default function Dashboard() {
                     <CardHeader>
                       <CardTitle>Recent Sales</CardTitle>
                       <CardDescription>
-                        You made {analytics?.recentSales.totalSales || '0'} sales this month.
+                        You made {analytics?.recentSales?.totalSales || '0'} sales this month.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <RecentSales customers={analytics?.recentSales.customers || []} totalSales={0} />
+                      <RecentSales customers={analytics?.recentSales?.customers || []} totalSales={0} />
                     </CardContent>
                   </Card>
                 </div>
